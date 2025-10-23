@@ -1,0 +1,108 @@
+{
+    "experiences": [
+      {
+        "name": "E-commerce",
+        "journeys": [
+          {
+            "id": "journey-checkout",
+            "name": "Checkout",
+            "experience": "E-commerce",
+            "slos": [
+              {
+                "id": "slo-checkout-avail",
+                "name": "Checkout Availability",
+                "description": "Successful payment auth + order create over total attempts",
+                "criticality": "tier-0",
+                "owner": "payments-platform",
+                "budgetingWindowDays": 28,
+                "objectivePercent": 99.9,
+                "errorBudgetPercent": 0.1,
+                "indicators": [
+                  {"id":"sli-200-ratio","name":"2xx ratio","type":"availability","unit":"percent","objectiveDirection":"gte","target":99.9,"source":"server"}
+                ]
+              },
+              {
+                "id": "slo-checkout-latency",
+                "name": "Checkout Latency",
+                "description": "p95 end-to-end place order",
+                "criticality": "tier-0",
+                "owner": "payments-platform",
+                "budgetingWindowDays": 28,
+                "objectivePercent": 99.0,
+                "errorBudgetPercent": 1.0,
+                "indicators": [
+                  {"id":"sli-p95-ms","name":"p95 latency","type":"latency","unit":"ms","objectiveDirection":"lte","target":1200,"source":"synthetic"}
+                ]
+              }
+            ]
+          },
+          {
+            "id": "journey-browse",
+            "name": "Browse & PDP",
+            "experience": "E-commerce",
+            "slos": [
+              {
+                "id":"slo-pdp-freshness",
+                "name":"Product Freshness",
+                "description":"% PDP views with inventory updated ≤5m",
+                "criticality":"tier-1",
+                "owner":"catalog",
+                "budgetingWindowDays":28,
+                "objectivePercent":99.0,
+                "errorBudgetPercent":1.0,
+                "indicators":[
+                  {"id":"sli-inv-fresh","name":"inventory freshness","type":"freshness","unit":"percent","objectiveDirection":"gte","target":99.0,"source":"db"}
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "In-store",
+        "journeys": [
+          {
+            "id": "journey-pos",
+            "name": "POS Checkout",
+            "experience": "In-store",
+            "slos": [
+              {
+                "id":"slo-pos-auth",
+                "name":"Card Auth Success",
+                "description":"% approved authorizations",
+                "criticality":"tier-0",
+                "owner":"store-platform",
+                "budgetingWindowDays":28,
+                "objectivePercent":99.95,
+                "errorBudgetPercent":0.05,
+                "indicators":[
+                  {"id":"sli-auth-approve","name":"auth approve rate","type":"quality","unit":"percent","objectiveDirection":"gte","target":99.95,"source":"server"}
+                ]
+              }
+            ]
+          },
+          {
+            "id": "journey-bopis",
+            "name": "BOPIS",
+            "experience": "In-store",
+            "slos": [
+              {
+                "id":"slo-bopis-lt",
+                "name":"Ready-in-Store Time",
+                "description":"p90 time from order to ready-for-pickup",
+                "criticality":"tier-1",
+                "owner":"ops-logistics",
+                "budgetingWindowDays":28,
+                "objectivePercent":95.0,
+                "errorBudgetPercent":5.0,
+                "indicators":[
+                  {"id":"sli-p90-min","name":"p90 minutes","type":"latency","unit":"ms","objectiveDirection":"lte","target":3600000,"source":"queue"}
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+  
