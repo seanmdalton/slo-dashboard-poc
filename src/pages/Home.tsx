@@ -24,6 +24,7 @@ export default function Home() {
   const [expandedTiers, setExpandedTiers] = useState<Record<string, boolean>>({});
   const [expandedSLOs, setExpandedSLOs] = useState<Record<string, boolean>>({});
   const [searchQuery, setSearchQuery] = useState("");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(() => {
     if (typeof window !== 'undefined') {
       return localStorage.getItem('darkMode') === 'true' || false;
@@ -42,6 +43,18 @@ export default function Home() {
       localStorage.setItem('darkMode', 'false');
     }
   }, [darkMode]);
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
 
   // Calculate all SLO statuses
   const allSLOStatuses = useMemo(() => {
@@ -124,6 +137,7 @@ export default function Home() {
 
   const selectJourney = (journeyId: string) => {
     setSelectedJourneyId(journeyId);
+    setMobileMenuOpen(false); // Close mobile menu when selecting a journey
     // Auto-expand the tiers for breaching SLOs in this journey
     const journey = experiences.flatMap(exp => exp.journeys).find(j => j.id === journeyId);
     if (journey) {
@@ -146,26 +160,41 @@ export default function Home() {
     <div className="h-screen flex flex-col bg-neutral-50 dark:bg-neutral-900">
       {/* Top Header */}
       <header className="bg-white dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700 shadow-sm flex-shrink-0">
-        <div className="px-6 py-4">
+        <div className="px-4 md:px-6 py-4">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
+            {/* Hamburger Menu Button - Mobile Only */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="lg:hidden p-2 text-neutral-900 dark:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+              aria-label="Toggle menu"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {mobileMenuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
+
+            <div className="flex-1 lg:flex-initial">
+              <h1 className="text-lg md:text-2xl font-bold text-neutral-900 dark:text-neutral-100">
                 🚗 Sean's Automotive Parts & More
               </h1>
-              <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">SLO Dashboard</p>
+              <p className="text-xs md:text-sm text-neutral-600 dark:text-neutral-400 mt-1">SLO Dashboard</p>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 md:gap-4">
               <input
                 type="text"
                 placeholder="Search SLOs..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg text-sm w-64 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-500 dark:placeholder:text-neutral-400"
+                className="hidden md:block px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg text-sm w-64 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-500 dark:placeholder:text-neutral-400 min-h-[44px]"
               />
               <select 
                 value={selectedOwner}
                 onChange={(e) => setSelectedOwner(e.target.value)}
-                className="px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg text-sm bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100"
+                className="hidden sm:block px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg text-sm bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 min-h-[44px]"
               >
                 <option value="all">All teams</option>
                 {allOwners.map(owner => (
@@ -174,8 +203,9 @@ export default function Home() {
               </select>
               <button
                 onClick={() => setDarkMode(!darkMode)}
-                className="px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg text-sm bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 hover:bg-neutral-50 dark:hover:bg-neutral-600 transition-colors"
+                className="px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg text-sm bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 hover:bg-neutral-50 dark:hover:bg-neutral-600 transition-colors min-h-[44px] min-w-[44px]"
                 title="Toggle dark mode"
+                aria-label="Toggle dark mode"
               >
                 {darkMode ? "☀️" : "🌙"}
               </button>
@@ -185,8 +215,24 @@ export default function Home() {
       </header>
 
       <div className="flex-1 flex overflow-hidden">
+        {/* Mobile Backdrop */}
+        {mobileMenuOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+            onClick={() => setMobileMenuOpen(false)}
+            aria-hidden="true"
+          />
+        )}
+
         {/* Left Sidebar */}
-        <aside className="w-80 bg-white dark:bg-neutral-800 border-r border-neutral-200 dark:border-neutral-700 overflow-y-auto flex-shrink-0">
+        <aside className={`
+          fixed lg:static inset-y-0 left-0 z-50 
+          w-80 bg-white dark:bg-neutral-800 
+          border-r border-neutral-200 dark:border-neutral-700 
+          overflow-y-auto flex-shrink-0
+          transform transition-transform duration-300 ease-in-out
+          ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        `}>
           <div className="p-4">
             <h2 className="text-sm font-bold text-neutral-700 dark:text-neutral-300 uppercase mb-3">Experiences</h2>
             
@@ -198,7 +244,7 @@ export default function Home() {
                 <div key={exp.name} className="mb-4">
                   <button
                     onClick={() => toggleExperience(exp.name)}
-                    className="w-full text-left p-3 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors"
+                    className="w-full text-left p-3 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors min-h-[44px]"
                   >
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
@@ -247,7 +293,7 @@ export default function Home() {
                           <button
                             key={journey.id}
                             onClick={() => selectJourney(journey.id)}
-                            className={`w-full text-left px-3 py-2 rounded transition-colors text-sm ${
+                            className={`w-full text-left px-3 py-2 rounded transition-colors text-sm min-h-[44px] ${
                               isSelected 
                                 ? 'bg-blue-50 dark:bg-blue-900/30 border-2 border-blue-500 dark:border-blue-400' 
                                 : 'hover:bg-neutral-100 dark:hover:bg-neutral-700 border-2 border-transparent'
@@ -279,7 +325,7 @@ export default function Home() {
 
         {/* Main Content */}
         <main className="flex-1 overflow-y-auto">
-          <div className="max-w-6xl mx-auto p-6">
+          <div className="max-w-6xl mx-auto p-4 md:p-6">
             {!selectedJourney ? (
               // Welcome screen when nothing is selected
               <div className="flex items-center justify-center h-full">
@@ -293,7 +339,7 @@ export default function Home() {
                   </p>
                   
                   {/* Global Stats */}
-                  <div className="grid grid-cols-3 gap-4 mb-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                     <div className="bg-white dark:bg-neutral-800 rounded-lg p-4 shadow-sm border border-neutral-200 dark:border-neutral-700">
                       <div className="text-3xl font-bold text-neutral-900 dark:text-neutral-100">
                         {experiences.reduce((acc, exp) => acc + exp.journeys.length, 0)}
@@ -338,10 +384,10 @@ export default function Home() {
               // Show selected journey
               <div>
                 {/* Journey breadcrumb */}
-                <div className="mb-4 flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
+                <div className="mb-4 flex flex-wrap items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
                   <button 
                     onClick={() => setSelectedJourneyId(null)}
-                    className="text-blue-600 dark:text-blue-400 hover:underline"
+                    className="text-blue-600 dark:text-blue-400 hover:underline min-h-[44px] flex items-center"
                   >
                     ← Back to overview
                   </button>
@@ -462,7 +508,7 @@ function JourneySection({ journey, expandedTiers, expandedSLOs, setExpandedTiers
               <div key={tier} className="border border-neutral-200 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 overflow-hidden">
                 <button
                   onClick={() => toggleTier(tier)}
-                  className="w-full px-4 py-3 bg-neutral-50 dark:bg-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors"
+                  className="w-full px-4 py-3 bg-neutral-50 dark:bg-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors min-h-[44px]"
                 >
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
@@ -581,7 +627,7 @@ function SLOCard({ slo, seriesData, status, isExpanded, onToggle }: SLOCardProps
       {/* Collapsed Header */}
       <button
         onClick={onToggle}
-        className="w-full px-3 py-2 flex items-center justify-between hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors"
+        className="w-full px-3 py-2 flex items-center justify-between hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors min-h-[44px]"
       >
         <div className="flex items-center gap-2 flex-1 text-left">
           <span className="text-neutral-400 dark:text-neutral-500 text-sm">{isExpanded ? "▼" : "▶"}</span>
@@ -611,7 +657,7 @@ function SLOCard({ slo, seriesData, status, isExpanded, onToggle }: SLOCardProps
           <p className="text-sm text-neutral-600 dark:text-neutral-400">{slo.description}</p>
 
           {/* Burn Rates */}
-          <div className="grid grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {(["1h", "6h", "24h", "3d"] as const).map(window => {
               const rate = burnRates[window];
               const status = getBurnRateStatus(rate);
@@ -630,8 +676,8 @@ function SLOCard({ slo, seriesData, status, isExpanded, onToggle }: SLOCardProps
             })}
           </div>
 
-          {/* Chart */}
-          <div className="h-48">
+          {/* Chart - Hidden on mobile, shown on tablet+ */}
+          <div className="hidden sm:block h-48">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -649,9 +695,30 @@ function SLOCard({ slo, seriesData, status, isExpanded, onToggle }: SLOCardProps
             </ResponsiveContainer>
           </div>
 
-          {/* Heatmap & Timeline */}
-          <ErrorBudgetHeatmap data={data} sli={primarySLI} />
-          <IncidentTimeline data={data} sli={primarySLI} />
+          {/* Mobile: Simple summary instead of chart */}
+          <div className="sm:hidden bg-neutral-50 dark:bg-neutral-700 rounded p-3 text-center">
+            <div className="text-xs text-neutral-600 dark:text-neutral-400 mb-1">Current Value</div>
+            <div className={`text-2xl font-bold ${meetsObjective ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-500'}`}>
+              {primarySLI.type === "latency" 
+                ? `${currentValue.toFixed(0)}ms` 
+                : `${currentValue.toFixed(2)}%`
+              }
+            </div>
+            <div className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
+              Target: {primarySLI.type === "latency" 
+                ? `${primarySLI.objectiveDirection === "lte" ? "≤" : "≥"} ${primarySLI.target}ms` 
+                : `${primarySLI.objectiveDirection === "lte" ? "≤" : "≥"} ${primarySLI.target}%`
+              }
+            </div>
+          </div>
+
+          {/* Heatmap & Timeline - Made horizontally scrollable on mobile */}
+          <div className="overflow-x-auto">
+            <ErrorBudgetHeatmap data={data} sli={primarySLI} />
+          </div>
+          <div className="overflow-x-auto">
+            <IncidentTimeline data={data} sli={primarySLI} />
+          </div>
         </div>
       )}
     </div>
