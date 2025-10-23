@@ -7,16 +7,23 @@ import {
   calculateErrorBudget,
   calculateBurnRates,
   getBurnRateStatus,
-  sliceTimeWindow
+  sliceTimeWindow,
+  getLatencyCompliancePercent
 } from "../lib/sloMath";
-import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from "recharts";
-import ErrorBudgetHeatmap from "../components/ErrorBudgetHeatmap";
+import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, Line, ComposedChart } from "recharts";
 import IncidentTimeline from "../components/IncidentTimeline";
 import BurnBar from "../components/BurnBar";
 
 export default function Home() {
-  const { seed, series } = useData();
+  const { seed, series, loading, error, fetchData } = useData();
   const experiences: ExperienceRollup[] = seed.experiences;
+
+  // Fetch data on mount
+  useEffect(() => {
+    if (experiences.length === 0 && !loading && !error) {
+      fetchData();
+    }
+  }, [experiences.length, loading, error, fetchData]);
   
   const [selectedJourneyId, setSelectedJourneyId] = useState<string | null>(null);
   const [expandedExperiences, setExpandedExperiences] = useState<Record<string, boolean>>({});
@@ -113,7 +120,13 @@ export default function Home() {
           const windowData = sliceTimeWindow(data, timeWindowMs);
           const currentValue = getCurrentSLIValue(primarySLI, windowData);
           const meetsObjective = isSLIMeetingObjective(primarySLI, currentValue);
-          const errorBudget = calculateErrorBudget(currentValue, slo.objectivePercent);
+          
+          // Convert to performance percentage for error budget calculation
+          const performancePercent = primarySLI.type === "latency"
+            ? getLatencyCompliancePercent(primarySLI, windowData) // % of time meeting target
+            : currentValue; // Already a percentage for availability/quality/etc
+          
+          const errorBudget = calculateErrorBudget(performancePercent, slo.objectivePercent);
           const burnRates = calculateBurnRates(data, primarySLI, slo.objectivePercent);
           
           const maxBurnRate = Math.max(burnRates["1h"], burnRates["6h"], burnRates["24h"], burnRates["3d"]);
@@ -326,6 +339,46 @@ export default function Home() {
     selectJourney(journeyId);
   };
 
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-900">
+        <div className="text-center">
+          <div className="text-6xl mb-4">⏳</div>
+          <h2 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
+            Loading SLO Dashboard...
+          </h2>
+          <p className="text-neutral-600 dark:text-neutral-400">
+            Fetching data from API server
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-900">
+        <div className="text-center max-w-md">
+          <div className="text-6xl mb-4">❌</div>
+          <h2 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
+            Failed to Load Data
+          </h2>
+          <p className="text-neutral-600 dark:text-neutral-400 mb-4">
+            {error}
+          </p>
+          <button
+            onClick={fetchData}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="h-screen flex flex-col bg-neutral-50 dark:bg-neutral-900">
       {/* Top Header */}
@@ -360,17 +413,6 @@ export default function Home() {
               <p className="text-xs md:text-sm text-neutral-600 dark:text-neutral-400 mt-1">SLO Dashboard</p>
             </button>
             <div className="flex items-center gap-2 md:gap-4">
-              <select
-                value={timeRangeDays}
-                onChange={(e) => setTimeRangeDays(Number(e.target.value))}
-                className="hidden sm:block px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg text-sm bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 min-h-[44px]"
-                title="Time range"
-              >
-                <option value={7}>Last 7 days</option>
-                <option value={14}>Last 14 days</option>
-                <option value={28}>Last 28 days</option>
-                <option value={90}>Last 90 days</option>
-              </select>
               <input
                 type="text"
                 placeholder="Search all SLOs..."
@@ -1185,8 +1227,14 @@ function SLOCard({ slo, seriesData, status, isExpanded, onToggle, timeRangeDays 
   const windowData = sliceTimeWindow(data, timeRangeDays * 24 * 60 * 60 * 1000);
   const currentValue = getCurrentSLIValue(primarySLI, windowData);
   const meetsObjective = status?.meetsObjective ?? isSLIMeetingObjective(primarySLI, currentValue);
+  
+  // Convert to performance percentage for error budget calculation
+  const performancePercent = primarySLI.type === "latency"
+    ? getLatencyCompliancePercent(primarySLI, windowData) // % of time meeting target
+    : currentValue; // Already a percentage for availability/quality/etc
+    
   // Always calculate full error budget to have all properties available
-  const errorBudget = calculateErrorBudget(currentValue, slo.objectivePercent);
+  const errorBudget = calculateErrorBudget(performancePercent, slo.objectivePercent);
   const burnRates = calculateBurnRates(data, primarySLI, slo.objectivePercent);
 
   const getStatusColor = () => {
@@ -1253,25 +1301,98 @@ function SLOCard({ slo, seriesData, status, isExpanded, onToggle, timeRangeDays 
   };
 
   const chartData = useMemo(() => {
-    const last7Days = sliceTimeWindow(data, 7 * 24 * 60 * 60 * 1000);
-    return last7Days.map(point => {
+    const timeRange = Math.min(timeRangeDays, 7) * 24 * 60 * 60 * 1000; // Use min of 7 days for chart
+    const windowData = sliceTimeWindow(data, timeRange);
+    
+    // Group data by day
+    const dailyData = new Map<string, { values: number[], good: number, bad: number, count: number }>();
+    
+    windowData.forEach(point => {
+      const date = new Date(point.t).toLocaleDateString();
+      
+      let value: number;
       if (primarySLI.type === "latency") {
-        return {
-          time: new Date(point.t).toLocaleDateString(),
-          value: point.value ?? 0,
-          target: primarySLI.target
-        };
+        value = point.value ?? 0;
       } else {
         const total = point.good + point.bad;
-        const pct = total > 0 ? (point.good / total) * 100 : 100;
-        return {
-          time: new Date(point.t).toLocaleDateString(),
-          value: pct,
-          target: primarySLI.target
-        };
+        value = total > 0 ? (point.good / total) * 100 : 100;
       }
+      
+      if (!dailyData.has(date)) {
+        dailyData.set(date, { values: [], good: 0, bad: 0, count: 0 });
+      }
+      
+      const dayData = dailyData.get(date)!;
+      dayData.values.push(value);
+      dayData.good += point.good;
+      dayData.bad += point.bad;
+      dayData.count++;
     });
-  }, [data, primarySLI]);
+    
+    // Calculate daily averages and CUMULATIVE error budget
+    // Error budgets accumulate over time and never reset
+    let cumulativeGood = 0;
+    let cumulativeBad = 0;
+    let cumulativeLatencyMeetingTarget = 0;
+    let cumulativeLatencyTotal = 0;
+    
+    return Array.from(dailyData.entries()).map(([date, dayData]) => {
+      let avgValue: number;
+      
+      if (primarySLI.type === "latency") {
+        avgValue = dayData.values.reduce((a, b) => a + b, 0) / dayData.values.length;
+        // For latency, track cumulative compliance
+        const meetingTarget = dayData.values.filter(v => 
+          primarySLI.objectiveDirection === "lte" ? v <= primarySLI.target : v >= primarySLI.target
+        ).length;
+        cumulativeLatencyMeetingTarget += meetingTarget;
+        cumulativeLatencyTotal += dayData.values.length;
+      } else {
+        const total = dayData.good + dayData.bad;
+        avgValue = total > 0 ? (dayData.good / total) * 100 : 100;
+        // For availability, track cumulative good/bad
+        cumulativeGood += dayData.good;
+        cumulativeBad += dayData.bad;
+      }
+      
+      // Calculate CUMULATIVE performance over all time so far
+      let cumulativePerformance: number;
+      if (primarySLI.type === "latency") {
+        cumulativePerformance = cumulativeLatencyTotal > 0 
+          ? (cumulativeLatencyMeetingTarget / cumulativeLatencyTotal) * 100 
+          : 100;
+      } else {
+        const cumulativeTotal = cumulativeGood + cumulativeBad;
+        cumulativePerformance = cumulativeTotal > 0 
+          ? (cumulativeGood / cumulativeTotal) * 100 
+          : 100;
+      }
+      
+      // Error budget is based on cumulative performance, not daily
+      const errorBudgetData = calculateErrorBudget(cumulativePerformance, slo.objectivePercent);
+      const errorBudgetRemaining = errorBudgetData.remainingPercent;
+      
+      return {
+        time: date,
+        value: avgValue,
+        target: primarySLI.target,
+        errorBudget: errorBudgetRemaining
+      };
+    });
+  }, [data, primarySLI, slo.objectivePercent, timeRangeDays]);
+
+  // Get error budget color based on remaining percentage
+  const getErrorBudgetColor = (remaining: number) => {
+    if (remaining >= 50) return '#10b981'; // Green
+    if (remaining >= 20) return '#f59e0b'; // Amber
+    return '#ef4444'; // Red
+  };
+
+  // Calculate average error budget for consistent coloring
+  const avgErrorBudget = chartData.length > 0 
+    ? chartData.reduce((sum, d) => sum + d.errorBudget, 0) / chartData.length 
+    : 100;
+  const errorBudgetColor = getErrorBudgetColor(avgErrorBudget);
 
   return (
     <div className="border border-neutral-200 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 overflow-hidden">
@@ -1328,22 +1449,83 @@ function SLOCard({ slo, seriesData, status, isExpanded, onToggle, timeRangeDays 
             })}
           </div>
 
-          {/* Chart - Hidden on mobile, shown on tablet+ */}
-          <div className="hidden sm:block h-48">
+          {/* Chart with Error Budget - Hidden on mobile, shown on tablet+ */}
+          <div className="hidden sm:block h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis dataKey="time" tick={{ fontSize: 11 }} stroke="#9ca3af" />
-                <YAxis tick={{ fontSize: 11 }} stroke="#9ca3af" domain={primarySLI.type === "latency" ? ["auto", "auto"] : [95, 100]} />
-                <Tooltip />
-                <Area type="monotone" dataKey="target" stroke="#9ca3af" fill="transparent" strokeDasharray="5 5" />
+              <ComposedChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:stroke-neutral-700" />
+                <XAxis 
+                  dataKey="time" 
+                  tick={{ fontSize: 11, fill: 'currentColor' }} 
+                  className="text-neutral-500 dark:text-neutral-400"
+                />
+                <YAxis 
+                  yAxisId="left"
+                  tick={{ fontSize: 11, fill: 'currentColor' }} 
+                  className="text-neutral-500 dark:text-neutral-400"
+                  domain={primarySLI.type === "latency" ? ["auto", "auto"] : [0, 100]}
+                  label={{ value: primarySLI.type === "latency" ? "Latency (ms)" : "Success Rate (%)", angle: -90, position: 'insideLeft', style: { fontSize: 11 } }}
+                />
+                <YAxis 
+                  yAxisId="right"
+                  orientation="right"
+                  tick={{ fontSize: 11, fill: 'currentColor' }} 
+                  className="text-neutral-500 dark:text-neutral-400"
+                  domain={[0, 100]}
+                  label={{ value: "Error Budget (%)", angle: 90, position: 'insideRight', style: { fontSize: 11 } }}
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'var(--tooltip-bg, white)', 
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '0.5rem'
+                  }}
+                  formatter={(value: number, name: string) => {
+                    if (name === 'value') return [value.toFixed(2), primarySLI.type === "latency" ? "Latency" : "Success Rate"];
+                    if (name === 'target') return [value.toFixed(2), "Target"];
+                    if (name === 'errorBudget') {
+                      const color = getErrorBudgetColor(value);
+                      return [
+                        <span style={{ color }}>{value.toFixed(1)}%</span>, 
+                        "Error Budget Remaining"
+                      ];
+                    }
+                    return [value, name];
+                  }}
+                />
+                
+                {/* Target line */}
+                <Line 
+                  yAxisId="left"
+                  type="monotone" 
+                  dataKey="target" 
+                  stroke="#9ca3af" 
+                  strokeDasharray="5 5" 
+                  dot={false}
+                  strokeWidth={1}
+                />
+                
+                {/* SLO performance area - Blue (neutral) */}
                 <Area
+                  yAxisId="left"
                   type="monotone"
                   dataKey="value"
-                  stroke={meetsObjective ? "#10b981" : "#ef4444"}
-                  fill={meetsObjective ? "#d1fae5" : "#fee2e2"}
+                  stroke="#3b82f6"
+                  fill="#dbeafe"
+                  strokeWidth={2}
+                  className="dark:fill-blue-900/30"
                 />
-              </AreaChart>
+                
+                {/* Error Budget line - Color coded by health */}
+                <Line 
+                  yAxisId="right"
+                  type="monotone" 
+                  dataKey="errorBudget" 
+                  stroke={errorBudgetColor}
+                  strokeWidth={2}
+                  dot={{ fill: errorBudgetColor, r: 3 }}
+                />
+              </ComposedChart>
             </ResponsiveContainer>
           </div>
 
@@ -1364,12 +1546,11 @@ function SLOCard({ slo, seriesData, status, isExpanded, onToggle, timeRangeDays 
             </div>
           </div>
 
-          {/* Heatmap & Timeline - Made horizontally scrollable on mobile */}
-          <div className="overflow-x-auto">
-            <ErrorBudgetHeatmap data={data} sli={primarySLI} />
-          </div>
-          <div className="overflow-x-auto">
-            <IncidentTimeline data={data} sli={primarySLI} />
+          {/* Incident Timeline - Aligned with chart */}
+          <div className="overflow-x-auto overflow-y-hidden">
+            <div className="ml-[60px] mr-[60px]">
+              <IncidentTimeline data={data} sli={primarySLI} />
+            </div>
           </div>
 
           {/* Quick Actions */}

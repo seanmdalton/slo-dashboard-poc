@@ -1,0 +1,128 @@
+import express from 'express';
+import cors from 'cors';
+import compression from 'compression';
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const app = express();
+const PORT = process.env.PORT || 3001;
+
+// Middleware
+app.use(cors());
+app.use(compression()); // Gzip compression
+app.use(express.json());
+
+// Load data once at startup (in-memory cache)
+let seedData = null;
+let seriesData = null;
+
+try {
+  seedData = JSON.parse(readFileSync(join(__dirname, 'data', 'seed.json'), 'utf-8'));
+  seriesData = JSON.parse(readFileSync(join(__dirname, 'data', 'series.json'), 'utf-8'));
+  console.log('✅ Data loaded successfully');
+  console.log(`   - Experiences: ${seedData.experiences?.length || 0}`);
+  console.log(`   - Series entries: ${Object.keys(seriesData).length}`);
+} catch (error) {
+  console.error('❌ Error loading data:', error);
+  process.exit(1);
+}
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    dataLoaded: !!seedData && !!seriesData
+  });
+});
+
+// Get seed data (experiences, journeys, SLOs metadata)
+app.get('/api/seed', (req, res) => {
+  res.set({
+    'Cache-Control': 'public, max-age=300', // Cache for 5 minutes
+    'ETag': `seed-${Date.now()}` // Simple ETag
+  });
+  
+  res.json(seedData);
+});
+
+// Get all series data
+app.get('/api/series', (req, res) => {
+  res.set({
+    'Cache-Control': 'public, max-age=300',
+    'ETag': `series-${Date.now()}`
+  });
+  
+  res.json(seriesData);
+});
+
+// Get series data for a specific SLI
+app.get('/api/series/:sliId', (req, res) => {
+  const { sliId } = req.params;
+  const data = seriesData[sliId];
+  
+  if (!data) {
+    return res.status(404).json({ error: 'SLI not found' });
+  }
+  
+  res.set({
+    'Cache-Control': 'public, max-age=300',
+    'ETag': `series-${sliId}-${Date.now()}`
+  });
+  
+  res.json(data);
+});
+
+// Get series data for multiple SLIs (for a journey)
+app.post('/api/series/batch', (req, res) => {
+  const { sliIds } = req.body;
+  
+  if (!Array.isArray(sliIds)) {
+    return res.status(400).json({ error: 'sliIds must be an array' });
+  }
+  
+  const result = {};
+  sliIds.forEach(sliId => {
+    if (seriesData[sliId]) {
+      result[sliId] = seriesData[sliId];
+    }
+  });
+  
+  res.set({
+    'Cache-Control': 'public, max-age=300',
+  });
+  
+  res.json(result);
+});
+
+// Error handling
+app.use((err, req, res, next) => {
+  console.error('Server error:', err);
+  res.status(500).json({ error: 'Internal server error' });
+});
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ error: 'Not found' });
+});
+
+app.listen(PORT, () => {
+  console.log(`\n🚀 SLO Dashboard API Server running`);
+  console.log(`   Local:   http://localhost:${PORT}`);
+  console.log(`   Health:  http://localhost:${PORT}/health`);
+  console.log(`\n📊 Available endpoints:`);
+  console.log(`   GET  /api/seed              - Get experiences/journeys metadata`);
+  console.log(`   GET  /api/series            - Get all series data`);
+  console.log(`   GET  /api/series/:sliId     - Get series for specific SLI`);
+  console.log(`   POST /api/series/batch      - Get series for multiple SLIs`);
+  console.log(`\n✨ Features enabled:`);
+  console.log(`   - CORS`);
+  console.log(`   - Gzip compression`);
+  console.log(`   - Response caching`);
+  console.log(`   - In-memory data caching\n`);
+});
+

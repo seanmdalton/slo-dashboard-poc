@@ -46,6 +46,7 @@ Each journey contains multiple SLOs (Service Level Objectives) with real-time mo
 
 ## 🛠️ Tech Stack
 
+### Frontend
 | Technology | Purpose |
 |------------|---------|
 | **React 19** | UI framework with latest features |
@@ -55,63 +56,86 @@ Each journey contains multiple SLOs (Service Level Objectives) with real-time mo
 | **Recharts** | Composable charting library |
 | **Zustand** | Lightweight state management |
 | **React Router v6** | Client-side routing |
-| **PostCSS** | CSS processing and optimization |
+
+### Backend
+| Technology | Purpose |
+|------------|---------|
+| **Node.js + Express** | REST API server |
+| **PostgreSQL 16** | Relational database with 1M+ data points |
+| **Drizzle ORM** | Type-safe database queries with migrations |
+| **Zod** | Runtime validation and type safety |
+| **Docker Compose** | Local development environment |
 
 ## 📁 Project Structure
 
 ```
 slo-dashboard-poc/
-├── src/
+├── src/                         # Frontend React application
 │   ├── components/              # Reusable UI components
 │   │   ├── BurnBar.tsx              # Error budget progress bar
-│   │   ├── ErrorBudgetHeatmap.tsx   # Hour-by-day heatmap visualization
 │   │   ├── ExperienceHeader.tsx     # Experience summary with health metrics
 │   │   ├── IncidentTimeline.tsx     # Incident detection and visualization
-│   │   ├── JourneyCard.tsx          # Journey preview card (deprecated)
 │   │   ├── SLIDial.tsx              # Circular compliance gauge
 │   │   └── SLISpark.tsx             # Mini sparkline charts
 │   ├── pages/
 │   │   ├── Home.tsx                 # Main dashboard with sidebar navigation
-│   │   └── Journey.tsx              # Journey detail view (deprecated)
+│   │   └── Journey.tsx              # Journey detail view
 │   ├── lib/
 │   │   └── sloMath.ts               # SLO calculation utilities
 │   ├── models/
 │   │   └── slo.ts                   # TypeScript type definitions
 │   ├── store/
-│   │   └── useData.ts               # Zustand data store
+│   │   └── useData.ts               # Zustand data store (API integration)
 │   └── data/
-│       ├── seed.json                # Static SLO definitions
-│       └── series.json              # Generated time series data
-├── scripts/
-│   └── generate.ts                  # Time series data generator
+│       └── seed.json                # Static SLO definitions (used by seeder)
+├── api/                         # Backend Express API
+│   ├── db/
+│   │   ├── schema.js                # Drizzle ORM schema definitions
+│   │   ├── connection.js            # PostgreSQL connection
+│   │   ├── migrate.js               # Migration runner
+│   │   ├── seed.js                  # Intelligent data seeder
+│   │   └── migrations/              # Version-controlled SQL migrations
+│   ├── server.js                    # Express API server
+│   ├── package.json
+│   └── drizzle.config.js            # Drizzle Kit configuration
+├── docker-compose.yml           # PostgreSQL container
+├── DATABASE.md                  # Database setup guide
 ├── package.json
 ├── vite.config.ts
-├── tailwind.config.js
-└── tsconfig.json
+└── tailwind.config.js
 ```
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 - Node.js 18+ and npm
+- Docker & Docker Compose
 
 ### Installation
 
 ```bash
-# Clone the repository
-cd slo-dashboard-poc
+# 1. Start PostgreSQL database
+docker compose up -d postgres
 
-# Install dependencies
+# 2. Install frontend dependencies
 npm install
 
-# Generate time series data (106 SLIs × 8,065 data points)
-npm run gen
+# 3. Install API dependencies and set up database
+cd api
+npm install
+npm run db:setup  # Runs migrations + seeds 1M data points
 
-# Start development server
-npm run dev
+# 4. Start API server (in one terminal)
+npm start  # Runs on http://localhost:3001
+
+# 5. Start frontend dev server (in another terminal)
+cd ..
+npm run dev  # Runs on http://localhost:5173
 ```
 
-The application will be available at `http://localhost:5173` (or next available port).
+The application will be available at `http://localhost:5173`.
+
+**See [DATABASE.md](DATABASE.md) for detailed database setup and management.**
 
 ## 📊 Key Concepts
 
@@ -182,32 +206,56 @@ Incidents are automatically detected and marked when:
 
 ## 📜 Available Scripts
 
+### Frontend (root directory)
 | Command | Description |
 |---------|-------------|
 | `npm run dev` | Start development server with hot reload |
 | `npm run build` | Build optimized production bundle |
 | `npm run preview` | Preview production build locally |
-| `npm run gen` | Generate time series data for all SLIs |
 | `npm run lint` | Run ESLint for code quality checks |
+
+### API (api directory)
+| Command | Description |
+|---------|-------------|
+| `npm start` | Start API server |
+| `npm run dev` | Start with auto-reload |
+| `npm run db:generate` | Generate migration from schema changes |
+| `npm run db:migrate` | Run pending migrations |
+| `npm run db:seed` | Seed database with realistic test data |
+| `npm run db:setup` | Full setup (migrate + seed) |
+
+### Docker
+| Command | Description |
+|---------|-------------|
+| `docker compose up -d` | Start PostgreSQL in background |
+| `docker compose down` | Stop and remove containers |
+| `docker compose logs postgres` | View PostgreSQL logs |
 
 ## 🧮 Data Generation
 
-Time series data is generated using `scripts/generate.ts` with realistic patterns:
+Time series data is intelligently generated and stored in PostgreSQL:
 
 ```bash
-npm run gen
+cd api
+npm run db:seed
 ```
 
 **Generates:**
-- 28 days of historical data
-- 5-minute intervals (8,065 data points per SLI)
-- Gaussian distribution with configurable volatility
-- Separate generators for availability vs. latency metrics
-- Output: `src/data/series.json` (~40MB)
+- **28 days** of historical data (5-minute intervals)
+- **1,000,000+ data points** across 124 SLIs
+- **Realistic incident patterns** with sharp degradations
+- **Monotonic error budget consumption**
+- **Diverse health states**: 60 healthy, 30 minor issues, 20 at-risk, 10 critical, 4 breached
 
-**Generator Functions:**
-- `genAvailSeries(baseGood, volatility)` - For availability/quality SLIs
-- `genLatencySeries(targetMs, sigma)` - For latency SLIs
+**Incident Patterns:**
+- **Healthy** (85-95% budget): No incidents
+- **Minor** (70-85%): Single 3-hour incident
+- **Moderate** (50-70%): Single 5-hour incident
+- **Severe** (20-50%): Multiple incidents across month
+- **Critical** (<20%): Chronic issues
+- **Breached** (<10%): Major outages exhausting budget
+
+Each SLO's data generation is calibrated to reach a specific error budget target, creating realistic demonstration scenarios.
 
 ## 🏗️ Architecture Decisions
 
@@ -223,11 +271,12 @@ npm run gen
 - **Smart Defaults**: Auto-expands problematic SLOs for immediate attention
 - **User Control**: Expand/collapse based on investigation needs
 
-### Why Client-Side Calculations?
-- **Proof of Concept**: No backend required for demo
-- **Real-time**: Instant metric updates without API latency
-- **Memoization**: Zustand + useMemo for performance optimization
-- **Flexibility**: Easy to experiment with different thresholds and formulas
+### Why PostgreSQL + Drizzle ORM?
+- **Type Safety**: End-to-end TypeScript types from database to UI
+- **Schema Migrations**: Version-controlled database evolution
+- **Performance**: Indexed queries for fast time series retrieval
+- **Production Ready**: Scalable architecture for real deployments
+- **Developer Experience**: Type-safe queries with excellent tooling
 
 ## 🎯 Best Practices Encoded
 
@@ -240,6 +289,97 @@ npm run gen
 7. **Dark Mode Support**: Comfortable viewing in any environment
 8. **Progressive Disclosure**: Show summary by default, details on demand
 
+## 🚀 Deployment to Render
+
+### Prerequisites
+1. A [Render account](https://render.com) (free tier works)
+2. Git repository pushed to GitHub/GitLab
+3. Render CLI installed (optional, for seeding): `npm install -g render`
+
+### Automatic Deployment
+
+The project includes `render.yaml` which defines all services:
+- **PostgreSQL database** (slo-dashboard-db)
+- **API backend** (slo-dashboard-api)
+- **Frontend** (slo-dashboard-poc)
+
+**Steps**:
+
+1. **Connect Repository**:
+   - Go to [Render Dashboard](https://dashboard.render.com)
+   - Click "New +" → "Blueprint"
+   - Connect your GitHub/GitLab repository
+   - Render will detect `render.yaml` automatically
+
+2. **Configure Environment Variables**:
+   - Frontend (`slo-dashboard-poc`):
+     - `VITE_API_URL` is auto-set to `https://slo-dashboard-api.onrender.com`
+   - API (`slo-dashboard-api`):
+     - `DATABASE_URL` is auto-linked to the PostgreSQL database
+     - Set `CORS_ORIGIN` to your frontend URL (e.g., `https://slo-dashboard-poc.onrender.com`)
+     - `RATE_LIMIT_ENABLED` is set to `true` for production
+
+3. **Deploy**:
+   - Click "Apply" to create all services
+   - Wait for builds to complete (~5 minutes)
+   - Database migrations run automatically during API build
+
+4. **Seed the Database**:
+   ```bash
+   # Option 1: Using Render CLI
+   ./scripts/seed-production.sh
+   
+   # Option 2: Using Render Dashboard
+   # Go to slo-dashboard-api → Shell
+   # Run: cd api && npm run db:seed
+   ```
+
+5. **Verify**:
+   - Visit your frontend URL
+   - You should see the dashboard with all SLOs populated
+
+### Manual Deployment
+
+If you prefer manual setup:
+
+1. **Create PostgreSQL Database**:
+   - New → PostgreSQL
+   - Name: `slo-dashboard-db`
+   - Database: `slo_dashboard`
+   - User: `slo_user`
+   - Plan: Free
+
+2. **Create API Service**:
+   - New → Web Service
+   - Connect repository
+   - Root Directory: `./`
+   - Build Command: `cd api && npm install && npm run db:migrate`
+   - Start Command: `cd api && npm start`
+   - Environment Variables:
+     - `NODE_ENV=production`
+     - `DATABASE_URL` (from database)
+     - `RATE_LIMIT_ENABLED=true`
+     - `CORS_ORIGIN=<your-frontend-url>`
+
+3. **Create Frontend Service**:
+   - New → Static Site
+   - Build Command: `npm install && npm run build`
+   - Publish Directory: `dist`
+   - Environment Variables:
+     - `VITE_API_URL=<your-api-url>`
+
+### Post-Deployment
+
+- **Check API Health**: `https://your-api.onrender.com/health`
+- **Monitor Logs**: Render Dashboard → Service → Logs
+- **Update Data**: Re-run seed script anytime to refresh demo data
+
+### Cost
+- **Free Tier**: Everything runs on free tier
+  - Database: 1GB storage, expires after 90 days
+  - Services: Spin down after 15min inactivity, cold start ~30s
+- **Paid Tier**: Faster, persistent, no cold starts ($7/month per service)
+
 ## 🔮 Future Enhancements
 
 - [ ] Real-time data streaming via WebSocket
@@ -250,7 +390,6 @@ npm run gen
 - [ ] Historical trend comparison
 - [ ] SLO template library
 - [ ] Integration with alerting systems (PagerDuty, Slack)
-- [ ] Mobile-responsive design
 - [ ] Multi-tenancy support
 - [ ] Custom dashboard layouts with drag-and-drop
 

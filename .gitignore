@@ -8,9 +8,13 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+api/node_modules
 dist
 dist-ssr
 *.local
+.env
+.env.local
+.env.production
 
 # Editor directories and files
 .vscode/*
@@ -22,3 +26,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Verbose documentation files (keep README.md and DATABASE.md only)
+*_FIX*.md
+*_SUMMARY*.md
+*_OPTIMIZATION*.md
+*_CONFIGURATION*.md
+REGENERATE*.md
+DEPLOYMENT.md

@@ -27,11 +27,26 @@ export function getCurrentSLIValue(sli: SLI, dataPoints: DataPoint[]): number {
     const result = availabilityFromPoints(dataPoints);
     return result.pct;
   } else if (sli.type === "latency") {
-    // For latency, use the last value
-    const last = dataPoints[dataPoints.length - 1];
-    return last?.value ?? 0;
+    // For latency, return average latency across all data points
+    const sum = dataPoints.reduce((acc, p) => acc + (p.value ?? 0), 0);
+    return sum / dataPoints.length;
   }
   return 0;
+}
+
+/**
+ * Calculate what percentage of time the latency SLI met its target
+ * This is used for error budget calculations
+ */
+export function getLatencyCompliancePercent(sli: SLI, dataPoints: DataPoint[]): number {
+  if (!dataPoints || dataPoints.length === 0) return 100;
+  
+  const meetingTarget = dataPoints.filter(p => {
+    const value = p.value ?? 0;
+    return sli.objectiveDirection === "lte" ? value <= sli.target : value >= sli.target;
+  }).length;
+  
+  return (meetingTarget / dataPoints.length) * 100;
 }
 
 /**
@@ -100,16 +115,14 @@ export function calculateBurnRateForWindow(
   const windowData = sliceTimeWindow(dataPoints, windowMs);
   if (windowData.length === 0) return 0;
   
-  const currentValue = getCurrentSLIValue(sli, windowData);
-  
-  // For latency, convert to availability-like metric for burn rate calculation
+  // For latency, use compliance percentage (% of time meeting target)
   if (sli.type === "latency") {
-    // Treat meeting latency target as "good"
-    const meetsTarget = currentValue <= sli.target;
-    const achieved = meetsTarget ? 99.9 : 95.0; // simplified for demo
-    return burnRate(achieved, objectivePercent);
+    const compliancePercent = getLatencyCompliancePercent(sli, windowData);
+    return burnRate(compliancePercent, objectivePercent);
   }
   
+  // For availability-like metrics, use the success rate
+  const currentValue = getCurrentSLIValue(sli, windowData);
   return burnRate(currentValue, objectivePercent);
 }
 

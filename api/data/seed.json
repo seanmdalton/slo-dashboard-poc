@@ -1,0 +1,1800 @@
+{
+  "experiences": [
+    {
+      "name": "E-commerce",
+      "journeys": [
+        {
+          "id": "journey-ecomm-auth",
+          "name": "Auth & Account",
+          "experience": "E-commerce",
+          "slos": [
+            {
+              "id": "slo-login-avail",
+              "name": "Login Availability",
+              "description": "Successful login attempts (2xx)",
+              "criticality": "tier-0",
+              "owner": "identity-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.95,
+              "errorBudgetPercent": 0.05,
+              "indicators": [
+                {"id":"sli-login-2xx","name":"Login 2xx ratio","type":"availability","unit":"percent","objectiveDirection":"gte","target":99.95,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-registration-avail",
+              "name": "Registration Availability",
+              "description": "Successful account creation (2xx)",
+              "criticality": "tier-1",
+              "owner": "identity-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.9,
+              "errorBudgetPercent": 0.1,
+              "indicators": [
+                {"id":"sli-registration-2xx","name":"Registration 2xx ratio","type":"availability","unit":"percent","objectiveDirection":"gte","target":99.9,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-pwd-reset-avail",
+              "name": "Password Reset Availability",
+              "description": "Password reset flow completion",
+              "criticality": "tier-2",
+              "owner": "identity-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.5,
+              "errorBudgetPercent": 0.5,
+              "indicators": [
+                {"id":"sli-pwd-reset-2xx","name":"Password reset 2xx ratio","type":"availability","unit":"percent","objectiveDirection":"gte","target":99.5,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-account-page-latency",
+              "name": "Account Page Load Time",
+              "description": "p95 account dashboard load time",
+              "criticality": "tier-1",
+              "owner": "identity-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-account-p95","name":"Account page p95","type":"latency","unit":"ms","objectiveDirection":"lte","target":800,"source":"rum"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "journey-ecomm-search",
+          "name": "Search & Discovery",
+          "experience": "E-commerce",
+          "slos": [
+            {
+              "id": "slo-search-api-avail",
+              "name": "Search API Availability",
+              "description": "Successful search queries (2xx)",
+              "criticality": "tier-0",
+              "owner": "search-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.9,
+              "errorBudgetPercent": 0.1,
+              "indicators": [
+                {"id":"sli-search-2xx","name":"Search API 2xx ratio","type":"availability","unit":"percent","objectiveDirection":"gte","target":99.9,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-search-latency",
+              "name": "Search Response Time",
+              "description": "p95 search API response time",
+              "criticality": "tier-1",
+              "owner": "search-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-search-p95","name":"Search p95","type":"latency","unit":"ms","objectiveDirection":"lte","target":300,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-search-quality",
+              "name": "Search Result Quality",
+              "description": "% queries with click-through in top 10 results",
+              "criticality": "tier-1",
+              "owner": "search-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 95.0,
+              "errorBudgetPercent": 5.0,
+              "indicators": [
+                {"id":"sli-search-quality","name":"Search relevance","type":"quality","unit":"percent","objectiveDirection":"gte","target":95.0,"source":"rum"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "journey-ecomm-pdp",
+          "name": "Product Detail (PDP)",
+          "experience": "E-commerce",
+          "slos": [
+            {
+              "id": "slo-pdp-avail",
+              "name": "PDP Availability",
+              "description": "Successful PDP page loads (2xx)",
+              "criticality": "tier-0",
+              "owner": "catalog-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.95,
+              "errorBudgetPercent": 0.05,
+              "indicators": [
+                {"id":"sli-pdp-2xx","name":"PDP 2xx ratio","type":"availability","unit":"percent","objectiveDirection":"gte","target":99.95,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-pdp-latency",
+              "name": "PDP Load Time",
+              "description": "p95 time to first contentful paint",
+              "criticality": "tier-0",
+              "owner": "catalog-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-pdp-p95","name":"PDP p95 load","type":"latency","unit":"ms","objectiveDirection":"lte","target":1000,"source":"rum"}
+              ]
+            },
+            {
+              "id": "slo-pdp-images",
+              "name": "Product Image Load Success",
+              "description": "% product images successfully loaded",
+              "criticality": "tier-1",
+              "owner": "catalog-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.5,
+              "errorBudgetPercent": 0.5,
+              "indicators": [
+                {"id":"sli-pdp-images","name":"Image load success","type":"availability","unit":"percent","objectiveDirection":"gte","target":99.5,"source":"rum"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "journey-ecomm-cart",
+          "name": "Cart",
+          "experience": "E-commerce",
+          "slos": [
+            {
+              "id": "slo-add-to-cart-avail",
+              "name": "Add to Cart Availability",
+              "description": "Successful add to cart operations (2xx)",
+              "criticality": "tier-0",
+              "owner": "cart-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.9,
+              "errorBudgetPercent": 0.1,
+              "indicators": [
+                {"id":"sli-add-cart-2xx","name":"Add to cart 2xx ratio","type":"availability","unit":"percent","objectiveDirection":"gte","target":99.9,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-cart-page-latency",
+              "name": "Cart Page Load Time",
+              "description": "p95 cart page load time",
+              "criticality": "tier-1",
+              "owner": "cart-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-cart-p95","name":"Cart page p95","type":"latency","unit":"ms","objectiveDirection":"lte","target":600,"source":"rum"}
+              ]
+            },
+            {
+              "id": "slo-cart-update-success",
+              "name": "Cart Update Success Rate",
+              "description": "% cart quantity/item updates that succeed",
+              "criticality": "tier-1",
+              "owner": "cart-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.5,
+              "errorBudgetPercent": 0.5,
+              "indicators": [
+                {"id":"sli-cart-update","name":"Cart update success","type":"availability","unit":"percent","objectiveDirection":"gte","target":99.5,"source":"server"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "journey-ecomm-checkout",
+          "name": "Checkout",
+          "experience": "E-commerce",
+          "slos": [
+            {
+              "id": "slo-checkout-flow-avail",
+              "name": "Checkout Flow Availability",
+              "description": "Successful /start→/order-create transactions (2xx)",
+              "criticality": "tier-0",
+              "owner": "checkout-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.95,
+              "errorBudgetPercent": 0.05,
+              "indicators": [
+                {"id":"sli-checkout-2xx","name":"Checkout 2xx ratio","type":"availability","unit":"percent","objectiveDirection":"gte","target":99.95,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-place-order-latency",
+              "name": "Place-Order Latency p95",
+              "description": "p95 end-to-end from Place order click to order ID",
+              "criticality": "tier-0",
+              "owner": "checkout-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-place-order-p95-web","name":"Place order p95 web","type":"latency","unit":"ms","objectiveDirection":"lte","target":1200,"source":"synthetic"},
+                {"id":"sli-place-order-p95-app","name":"Place order p95 app","type":"latency","unit":"ms","objectiveDirection":"lte","target":900,"source":"rum"}
+              ]
+            },
+            {
+              "id": "slo-auth-gateway",
+              "name": "Auth Gateway Success",
+              "description": "% approved card authorizations (issuer + gateway)",
+              "criticality": "tier-0",
+              "owner": "payments-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 98.5,
+              "errorBudgetPercent": 1.5,
+              "indicators": [
+                {"id":"sli-auth-approve-overall","name":"Auth approval rate overall","type":"quality","unit":"percent","objectiveDirection":"gte","target":98.5,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-psp-availability",
+              "name": "Payment Provider Availability",
+              "description": "% 2xx from PSP APIs used in checkout critical path",
+              "criticality": "tier-0",
+              "owner": "payments-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.95,
+              "errorBudgetPercent": 0.05,
+              "indicators": [
+                {"id":"sli-psp-2xx","name":"PSP 2xx ratio","type":"availability","unit":"percent","objectiveDirection":"gte","target":99.95,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-3ds-success",
+              "name": "3-D Secure / SCA Pass-Through",
+              "description": "% 3DS required that complete and return frictionless/challenge success",
+              "criticality": "tier-1",
+              "owner": "payments-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 97.0,
+              "errorBudgetPercent": 3.0,
+              "indicators": [
+                {"id":"sli-3ds-success","name":"3DS completion rate","type":"quality","unit":"percent","objectiveDirection":"gte","target":97.0,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-wallet-success",
+              "name": "Wallet Success (Apple/Google/PayPal/ShopPay)",
+              "description": "% wallet checkouts that complete order create",
+              "criticality": "tier-1",
+              "owner": "payments-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.2,
+              "errorBudgetPercent": 0.8,
+              "indicators": [
+                {"id":"sli-wallet-apple","name":"Apple Pay success","type":"quality","unit":"percent","objectiveDirection":"gte","target":99.2,"source":"server"},
+                {"id":"sli-wallet-google","name":"Google Pay success","type":"quality","unit":"percent","objectiveDirection":"gte","target":99.2,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-fraud-latency",
+              "name": "Fraud Decision Service Latency p95",
+              "description": "p95 decision time",
+              "criticality": "tier-1",
+              "owner": "fraud-risk",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-fraud-p95","name":"Fraud check p95","type":"latency","unit":"ms","objectiveDirection":"lte","target":200,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-order-correctness",
+              "name": "Order Creation Correctness",
+              "description": "% orders with reconciled tender lines = 100% and non-zero tax/total parity",
+              "criticality": "tier-0",
+              "owner": "order-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.99,
+              "errorBudgetPercent": 0.01,
+              "indicators": [
+                {"id":"sli-order-correct","name":"Order correctness","type":"correctness","unit":"percent","objectiveDirection":"gte","target":99.99,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-pricing-correctness",
+              "name": "Pricing Correctness",
+              "description": "% line items priced within ±$0.00 of engine at commit time",
+              "criticality": "tier-1",
+              "owner": "pricing-catalog",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.99,
+              "errorBudgetPercent": 0.01,
+              "indicators": [
+                {"id":"sli-pricing-correct","name":"Pricing accuracy","type":"correctness","unit":"percent","objectiveDirection":"gte","target":99.99,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-tax-correctness",
+              "name": "Tax Calculation Correctness",
+              "description": "% orders where tax engine and recorded tax match",
+              "criticality": "tier-1",
+              "owner": "pricing-catalog",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.99,
+              "errorBudgetPercent": 0.01,
+              "indicators": [
+                {"id":"sli-tax-correct","name":"Tax calculation accuracy","type":"correctness","unit":"percent","objectiveDirection":"gte","target":99.99,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-inventory-reservation",
+              "name": "Inventory Reservation Success",
+              "description": "% reservations confirmed at order commit",
+              "criticality": "tier-0",
+              "owner": "ops-logistics",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.9,
+              "errorBudgetPercent": 0.1,
+              "indicators": [
+                {"id":"sli-inventory-bopis","name":"BOPIS reservation success","type":"quality","unit":"percent","objectiveDirection":"gte","target":99.9,"source":"server"},
+                {"id":"sli-inventory-ship","name":"Ship reservation success","type":"quality","unit":"percent","objectiveDirection":"gte","target":99.5,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-promo-success",
+              "name": "Promo/Coupon Application Success",
+              "description": "% applied promos that persist to order total",
+              "criticality": "tier-2",
+              "owner": "pricing-catalog",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.5,
+              "errorBudgetPercent": 0.5,
+              "indicators": [
+                {"id":"sli-promo-apply","name":"Promo application success","type":"quality","unit":"percent","objectiveDirection":"gte","target":99.5,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-address-validation",
+              "name": "Address Validation Latency p95",
+              "description": "p95 address-verify call",
+              "criticality": "tier-2",
+              "owner": "checkout-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-address-p95","name":"Address validation p95","type":"latency","unit":"ms","objectiveDirection":"lte","target":250,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-cart-conversion",
+              "name": "Cart to Checkout Start Conversion Integrity",
+              "description": "% cart states that transition to checkout without error",
+              "criticality": "tier-2",
+              "owner": "checkout-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.7,
+              "errorBudgetPercent": 0.3,
+              "indicators": [
+                {"id":"sli-cart-checkout","name":"Cart transition success","type":"quality","unit":"percent","objectiveDirection":"gte","target":99.7,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-receipt-dispatch",
+              "name": "Email/SMS Receipt Dispatch Success",
+              "description": "% receipts accepted by provider within 60s of order create",
+              "criticality": "tier-2",
+              "owner": "notifications",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.9,
+              "errorBudgetPercent": 0.1,
+              "indicators": [
+                {"id":"sli-receipt-dispatch","name":"Receipt dispatch success","type":"quality","unit":"percent","objectiveDirection":"gte","target":99.9,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-settlement-timeliness",
+              "name": "Settlement and Capture Timeliness",
+              "description": "% authorizations captured within T+24h; reconciliation diffs = $0",
+              "criticality": "tier-1",
+              "owner": "payments-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.95,
+              "errorBudgetPercent": 0.05,
+              "indicators": [
+                {"id":"sli-settlement-time","name":"Settlement timeliness","type":"quality","unit":"percent","objectiveDirection":"gte","target":99.95,"source":"server"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "journey-ecomm-payments",
+          "name": "Payments",
+          "experience": "E-commerce",
+          "slos": [
+            {
+              "id": "slo-payment-processing-avail",
+              "name": "Payment Processing Availability",
+              "description": "Successful payment authorization requests (2xx)",
+              "criticality": "tier-0",
+              "owner": "payments-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.99,
+              "errorBudgetPercent": 0.01,
+              "indicators": [
+                {"id":"sli-payment-proc-2xx","name":"Payment processing 2xx ratio","type":"availability","unit":"percent","objectiveDirection":"gte","target":99.99,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-payment-latency",
+              "name": "Payment Authorization Latency",
+              "description": "p95 payment authorization time",
+              "criticality": "tier-0",
+              "owner": "payments-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-payment-p95","name":"Payment auth p95","type":"latency","unit":"ms","objectiveDirection":"lte","target":800,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-payment-gateway-success",
+              "name": "Payment Gateway Success Rate",
+              "description": "% payment gateway transactions successful",
+              "criticality": "tier-0",
+              "owner": "payments-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.5,
+              "errorBudgetPercent": 0.5,
+              "indicators": [
+                {"id":"sli-gateway-success","name":"Gateway success rate","type":"quality","unit":"percent","objectiveDirection":"gte","target":99.5,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-refund-processing",
+              "name": "Refund Processing Success",
+              "description": "% refund requests successfully processed",
+              "criticality": "tier-1",
+              "owner": "payments-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.9,
+              "errorBudgetPercent": 0.1,
+              "indicators": [
+                {"id":"sli-refund-success","name":"Refund success rate","type":"quality","unit":"percent","objectiveDirection":"gte","target":99.9,"source":"server"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "journey-ecomm-store-locator",
+          "name": "Store Locator & Find-in-Store",
+          "experience": "E-commerce",
+          "slos": [
+            {
+              "id": "slo-store-locator-avail",
+              "name": "Store Locator Availability",
+              "description": "Successful store search queries (2xx)",
+              "criticality": "tier-1",
+              "owner": "store-ops",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.9,
+              "errorBudgetPercent": 0.1,
+              "indicators": [
+                {"id":"sli-store-loc-2xx","name":"Store locator 2xx ratio","type":"availability","unit":"percent","objectiveDirection":"gte","target":99.9,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-find-in-store-avail",
+              "name": "Find-in-Store API Availability",
+              "description": "Successful inventory check API calls (2xx)",
+              "criticality": "tier-1",
+              "owner": "inventory-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.5,
+              "errorBudgetPercent": 0.5,
+              "indicators": [
+                {"id":"sli-fis-2xx","name":"Find-in-store 2xx ratio","type":"availability","unit":"percent","objectiveDirection":"gte","target":99.5,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-inventory-check-latency",
+              "name": "Inventory Check Latency",
+              "description": "p95 store inventory check response time",
+              "criticality": "tier-2",
+              "owner": "inventory-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-inv-check-p95","name":"Inventory check p95","type":"latency","unit":"ms","objectiveDirection":"lte","target":500,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-store-hours-accuracy",
+              "name": "Store Hours Data Accuracy",
+              "description": "% stores with accurate operating hours displayed",
+              "criticality": "tier-2",
+              "owner": "store-ops",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-hours-accuracy","name":"Store hours accuracy","type":"correctness","unit":"percent","objectiveDirection":"gte","target":99.0,"source":"server"}
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "In-store",
+      "journeys": [
+        {
+          "id": "journey-pos-checkout",
+          "name": "POS Checkout",
+          "experience": "In-store",
+          "slos": [
+            {
+              "id": "slo-pos-transaction",
+              "name": "POS Transaction Success",
+              "description": "% transactions that complete tender and print/emit receipt",
+              "criticality": "tier-0",
+              "owner": "store-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.95,
+              "errorBudgetPercent": 0.05,
+              "indicators": [
+                {"id":"sli-pos-complete","name":"POS completion rate","type":"availability","unit":"percent","objectiveDirection":"gte","target":99.95,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-tender-auth",
+              "name": "Tender Authorization Success",
+              "description": "% card approvals at lane",
+              "criticality": "tier-0",
+              "owner": "store-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 98.8,
+              "errorBudgetPercent": 1.2,
+              "indicators": [
+                {"id":"sli-tender-overall","name":"Card auth overall","type":"quality","unit":"percent","objectiveDirection":"gte","target":98.8,"source":"server"},
+                {"id":"sli-tender-contactless","name":"Contactless auth","type":"quality","unit":"percent","objectiveDirection":"gte","target":99.2,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-lane-responsiveness",
+              "name": "Lane Responsiveness p95",
+              "description": "p95 UI action→response for add-item, total, tender screens",
+              "criticality": "tier-0",
+              "owner": "store-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-lane-add-item","name":"Add item p95","type":"latency","unit":"ms","objectiveDirection":"lte","target":150,"source":"rum"},
+                {"id":"sli-lane-total","name":"Total screen p95","type":"latency","unit":"ms","objectiveDirection":"lte","target":500,"source":"rum"},
+                {"id":"sli-lane-tender","name":"Tender screen p95","type":"latency","unit":"ms","objectiveDirection":"lte","target":700,"source":"rum"}
+              ]
+            },
+            {
+              "id": "slo-scanner-throughput",
+              "name": "Scanner Throughput",
+              "description": "p50 scans/sec sustained over 30s burst",
+              "criticality": "tier-1",
+              "owner": "store-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-scanner-rate","name":"Scanner throughput","type":"quality","unit":"count","objectiveDirection":"gte","target":3.5,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-receipt-issuance",
+              "name": "Receipt Issuance Time p95",
+              "description": "p95 commit→receipt available (print or digital)",
+              "criticality": "tier-1",
+              "owner": "store-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-receipt-p95","name":"Receipt time p95","type":"latency","unit":"ms","objectiveDirection":"lte","target":2000,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-peripheral-health",
+              "name": "Peripheral Health",
+              "description": "% time all required peripherals ready (scanner, scale, printer, pinpad)",
+              "criticality": "tier-1",
+              "owner": "store-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.9,
+              "errorBudgetPercent": 0.1,
+              "indicators": [
+                {"id":"sli-peripheral-ready","name":"Peripherals ready","type":"availability","unit":"percent","objectiveDirection":"gte","target":99.9,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-offline-continuity",
+              "name": "Offline Mode Continuity",
+              "description": "% transactions that succeed during WAN loss using cached rules",
+              "criticality": "tier-0",
+              "owner": "store-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.5,
+              "errorBudgetPercent": 0.5,
+              "indicators": [
+                {"id":"sli-offline-success","name":"Offline transaction success","type":"availability","unit":"percent","objectiveDirection":"gte","target":99.5,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-price-accuracy",
+              "name": "Price Accuracy at Lane",
+              "description": "% items with lane price = master price at commit",
+              "criticality": "tier-0",
+              "owner": "store-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.99,
+              "errorBudgetPercent": 0.01,
+              "indicators": [
+                {"id":"sli-price-match","name":"Price accuracy","type":"correctness","unit":"percent","objectiveDirection":"gte","target":99.99,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-loyalty-resolve",
+              "name": "Promo/Loyalty Resolve Success",
+              "description": "% loyalty lookup and promo application success within 500ms",
+              "criticality": "tier-1",
+              "owner": "store-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.5,
+              "errorBudgetPercent": 0.5,
+              "indicators": [
+                {"id":"sli-loyalty-success","name":"Loyalty resolve success","type":"quality","unit":"percent","objectiveDirection":"gte","target":99.5,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-cash-management",
+              "name": "Cash Management Correctness",
+              "description": "% drawer reconciliations within tolerance at EOD",
+              "criticality": "tier-2",
+              "owner": "store-ops",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.9,
+              "errorBudgetPercent": 0.1,
+              "indicators": [
+                {"id":"sli-cash-reconcile","name":"Drawer reconciliation","type":"correctness","unit":"percent","objectiveDirection":"gte","target":99.9,"source":"server"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "journey-self-checkout",
+          "name": "Self-Checkout",
+          "experience": "In-store",
+          "slos": [
+            {
+              "id": "slo-sco-uptime",
+              "name": "SCO Kiosk Uptime",
+              "description": "% time SCO kiosks are available for customer use",
+              "criticality": "tier-0",
+              "owner": "store-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.5,
+              "errorBudgetPercent": 0.5,
+              "indicators": [
+                {"id":"sli-sco-uptime","name":"SCO availability","type":"availability","unit":"percent","objectiveDirection":"gte","target":99.5,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-sco-intervention",
+              "name": "Attendant Intervention Rate",
+              "description": "% SCO transactions requiring attendant assistance",
+              "criticality": "tier-1",
+              "owner": "store-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 85.0,
+              "errorBudgetPercent": 15.0,
+              "indicators": [
+                {"id":"sli-sco-intervention","name":"Self-service completion rate","type":"quality","unit":"percent","objectiveDirection":"gte","target":85.0,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-sco-abandon",
+              "name": "SCO Abandon Rate",
+              "description": "% SCO sessions abandoned before payment",
+              "criticality": "tier-1",
+              "owner": "store-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 92.0,
+              "errorBudgetPercent": 8.0,
+              "indicators": [
+                {"id":"sli-sco-completion","name":"SCO completion rate","type":"quality","unit":"percent","objectiveDirection":"gte","target":92.0,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-sco-transaction-time",
+              "name": "SCO Transaction Time p95",
+              "description": "p95 scan-to-receipt time at self-checkout",
+              "criticality": "tier-2",
+              "owner": "store-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-sco-txn-p95","name":"SCO transaction p95","type":"latency","unit":"ms","objectiveDirection":"lte","target":180000,"source":"server"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "journey-bopis-pickup",
+          "name": "BOPIS/Store Pickup Handoff",
+          "experience": "In-store",
+          "slos": [
+            {
+              "id": "slo-order-locate",
+              "name": "Order Locate Success Rate",
+              "description": "% BOPIS orders successfully located in system",
+              "criticality": "tier-0",
+              "owner": "fulfillment-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.9,
+              "errorBudgetPercent": 0.1,
+              "indicators": [
+                {"id":"sli-order-locate","name":"Order locate success","type":"availability","unit":"percent","objectiveDirection":"gte","target":99.9,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-pick-slip",
+              "name": "Pick Slip Generation Success",
+              "description": "% pick slips generated successfully for ready orders",
+              "criticality": "tier-1",
+              "owner": "fulfillment-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.5,
+              "errorBudgetPercent": 0.5,
+              "indicators": [
+                {"id":"sli-pick-slip","name":"Pick slip generation","type":"availability","unit":"percent","objectiveDirection":"gte","target":99.5,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-handoff-time",
+              "name": "Customer Handoff Time p95",
+              "description": "p95 time from customer arrival to order handoff",
+              "criticality": "tier-0",
+              "owner": "fulfillment-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-handoff-p95","name":"Handoff time p95","type":"latency","unit":"ms","objectiveDirection":"lte","target":300000,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-ready-notification",
+              "name": "Ready-for-Pickup Notification Timeliness",
+              "description": "% notifications sent within 5 min of order ready status",
+              "criticality": "tier-1",
+              "owner": "notifications",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-ready-notify","name":"Ready notification timeliness","type":"quality","unit":"percent","objectiveDirection":"gte","target":99.0,"source":"server"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "journey-returns",
+          "name": "Returns & Exchanges",
+          "experience": "In-store",
+          "slos": [
+            {
+              "id": "slo-rma-lookup",
+              "name": "RMA Lookup Availability",
+              "description": "% RMA/return lookups that succeed",
+              "criticality": "tier-0",
+              "owner": "order-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.9,
+              "errorBudgetPercent": 0.1,
+              "indicators": [
+                {"id":"sli-rma-lookup","name":"RMA lookup success","type":"availability","unit":"percent","objectiveDirection":"gte","target":99.9,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-refund-timeliness",
+              "name": "Refund Processing Timeliness p95",
+              "description": "p95 time from return scan to refund initiated",
+              "criticality": "tier-0",
+              "owner": "payments-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-refund-p95","name":"Refund processing p95","type":"latency","unit":"ms","objectiveDirection":"lte","target":5000,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-tender-parity",
+              "name": "Tender Parity Accuracy",
+              "description": "% refunds issued to original tender method",
+              "criticality": "tier-1",
+              "owner": "payments-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.99,
+              "errorBudgetPercent": 0.01,
+              "indicators": [
+                {"id":"sli-tender-parity","name":"Tender match rate","type":"correctness","unit":"percent","objectiveDirection":"gte","target":99.99,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-return-auth",
+              "name": "Return Authorization Success Rate",
+              "description": "% return requests that clear policy/fraud checks",
+              "criticality": "tier-1",
+              "owner": "fraud-risk",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 98.0,
+              "errorBudgetPercent": 2.0,
+              "indicators": [
+                {"id":"sli-return-auth","name":"Return authorization rate","type":"quality","unit":"percent","objectiveDirection":"gte","target":98.0,"source":"server"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "journey-partner-delivery",
+          "name": "On-Demand Delivery & Partner Pickup",
+          "experience": "In-store",
+          "slos": [
+            {
+              "id": "slo-partner-transmission",
+              "name": "Partner Order Transmission Success",
+              "description": "% orders successfully transmitted to partner platforms (Instacart/DoorDash/Shipt)",
+              "criticality": "tier-0",
+              "owner": "integration-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.9,
+              "errorBudgetPercent": 0.1,
+              "indicators": [
+                {"id":"sli-partner-tx","name":"Partner transmission success","type":"availability","unit":"percent","objectiveDirection":"gte","target":99.9,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-partner-api-uptime",
+              "name": "Partner API Availability",
+              "description": "% uptime for partner API endpoints",
+              "criticality": "tier-0",
+              "owner": "integration-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.5,
+              "errorBudgetPercent": 0.5,
+              "indicators": [
+                {"id":"sli-partner-api","name":"Partner API 2xx rate","type":"availability","unit":"percent","objectiveDirection":"gte","target":99.5,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-order-acceptance",
+              "name": "Partner Order Acceptance Rate",
+              "description": "% orders accepted by partners within 2 minutes",
+              "criticality": "tier-1",
+              "owner": "integration-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 95.0,
+              "errorBudgetPercent": 5.0,
+              "indicators": [
+                {"id":"sli-partner-accept","name":"Partner acceptance rate","type":"quality","unit":"percent","objectiveDirection":"gte","target":95.0,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-pickup-status-update",
+              "name": "Pickup Ready Status Update Timeliness",
+              "description": "% status updates sent to partner within 1 min of ready",
+              "criticality": "tier-1",
+              "owner": "integration-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-pickup-status","name":"Status update timeliness","type":"quality","unit":"percent","objectiveDirection":"gte","target":99.0,"source":"server"}
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Order Management",
+      "journeys": [
+        {
+          "id": "journey-promise-split",
+          "name": "Promise & Split",
+          "experience": "Order Management",
+          "slos": [
+            {
+              "id": "slo-promise-accuracy",
+              "name": "Promise Date Accuracy",
+              "description": "% orders delivered within promised delivery window",
+              "criticality": "tier-0",
+              "owner": "fulfillment-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 95.0,
+              "errorBudgetPercent": 5.0,
+              "indicators": [
+                {"id":"sli-promise-accuracy","name":"Promise accuracy","type":"quality","unit":"percent","objectiveDirection":"gte","target":95.0,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-split-logic",
+              "name": "Order Split Logic Success",
+              "description": "% multi-SKU orders split correctly by location/fulfillment method",
+              "criticality": "tier-1",
+              "owner": "order-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.5,
+              "errorBudgetPercent": 0.5,
+              "indicators": [
+                {"id":"sli-split-success","name":"Split logic success","type":"quality","unit":"percent","objectiveDirection":"gte","target":99.5,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-backorder-rules",
+              "name": "Backorder Rule Execution",
+              "description": "% backorder decisions executed correctly per business rules",
+              "criticality": "tier-2",
+              "owner": "inventory-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-backorder-correct","name":"Backorder rule correctness","type":"correctness","unit":"percent","objectiveDirection":"gte","target":99.0,"source":"server"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "journey-pick-pack-ship",
+          "name": "Pick/Pack/Ship",
+          "experience": "Order Management",
+          "slos": [
+            {
+              "id": "slo-dc-processing",
+              "name": "DC/3PL Order Processing Success",
+              "description": "% orders successfully transmitted and acknowledged by DC/3PL",
+              "criticality": "tier-0",
+              "owner": "fulfillment-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.9,
+              "errorBudgetPercent": 0.1,
+              "indicators": [
+                {"id":"sli-dc-process","name":"DC processing success","type":"availability","unit":"percent","objectiveDirection":"gte","target":99.9,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-label-generation",
+              "name": "Shipping Label Generation Success",
+              "description": "% shipping labels generated successfully",
+              "criticality": "tier-0",
+              "owner": "fulfillment-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.9,
+              "errorBudgetPercent": 0.1,
+              "indicators": [
+                {"id":"sli-label-gen","name":"Label generation success","type":"availability","unit":"percent","objectiveDirection":"gte","target":99.9,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-handoff-scan",
+              "name": "Carrier Handoff Scan Success",
+              "description": "% packages with successful carrier acceptance scan",
+              "criticality": "tier-1",
+              "owner": "fulfillment-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.5,
+              "errorBudgetPercent": 0.5,
+              "indicators": [
+                {"id":"sli-handoff-scan","name":"Handoff scan success","type":"quality","unit":"percent","objectiveDirection":"gte","target":99.5,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-pick-accuracy",
+              "name": "Pick Accuracy",
+              "description": "% orders picked with correct SKUs and quantities",
+              "criticality": "tier-1",
+              "owner": "fulfillment-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.8,
+              "errorBudgetPercent": 0.2,
+              "indicators": [
+                {"id":"sli-pick-accuracy","name":"Pick correctness","type":"correctness","unit":"percent","objectiveDirection":"gte","target":99.8,"source":"server"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "journey-transportation",
+          "name": "Transportation & Last-Mile",
+          "experience": "Order Management",
+          "slos": [
+            {
+              "id": "slo-carrier-api",
+              "name": "Carrier API Availability",
+              "description": "% uptime for carrier tracking/status APIs",
+              "criticality": "tier-0",
+              "owner": "integration-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.5,
+              "errorBudgetPercent": 0.5,
+              "indicators": [
+                {"id":"sli-carrier-api","name":"Carrier API 2xx rate","type":"availability","unit":"percent","objectiveDirection":"gte","target":99.5,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-scan-compliance",
+              "name": "Carrier Scan Compliance",
+              "description": "% shipments with all required milestone scans",
+              "criticality": "tier-1",
+              "owner": "fulfillment-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 98.0,
+              "errorBudgetPercent": 2.0,
+              "indicators": [
+                {"id":"sli-scan-compliance","name":"Scan milestone compliance","type":"quality","unit":"percent","objectiveDirection":"gte","target":98.0,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-eta-accuracy",
+              "name": "ETA Accuracy",
+              "description": "% shipments delivered within predicted ETA window",
+              "criticality": "tier-1",
+              "owner": "fulfillment-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 90.0,
+              "errorBudgetPercent": 10.0,
+              "indicators": [
+                {"id":"sli-eta-accuracy","name":"ETA window accuracy","type":"quality","unit":"percent","objectiveDirection":"gte","target":90.0,"source":"server"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "journey-curbside-sameday",
+          "name": "Curbside & Same-Day",
+          "experience": "Order Management",
+          "slos": [
+            {
+              "id": "slo-readiness-time",
+              "name": "Order Readiness Time p95",
+              "description": "p95 time from order submit to ready-for-pickup",
+              "criticality": "tier-0",
+              "owner": "fulfillment-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-ready-p95","name":"Readiness time p95","type":"latency","unit":"ms","objectiveDirection":"lte","target":7200000,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-stall-wait",
+              "name": "Curbside Stall Wait Time p95",
+              "description": "p95 customer wait time at curbside stall",
+              "criticality": "tier-0",
+              "owner": "fulfillment-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-stall-wait-p95","name":"Stall wait p95","type":"latency","unit":"ms","objectiveDirection":"lte","target":300000,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-curbside-handoff",
+              "name": "Curbside Handoff Success",
+              "description": "% curbside orders successfully handed off to customer",
+              "criticality": "tier-1",
+              "owner": "fulfillment-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.5,
+              "errorBudgetPercent": 0.5,
+              "indicators": [
+                {"id":"sli-curbside-handoff","name":"Curbside handoff success","type":"quality","unit":"percent","objectiveDirection":"gte","target":99.5,"source":"server"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "journey-post-purchase-changes",
+          "name": "Post-Purchase Changes",
+          "experience": "Order Management",
+          "slos": [
+            {
+              "id": "slo-cancel-modify",
+              "name": "Cancel/Modify Request Success",
+              "description": "% cancel/modify requests successfully processed",
+              "criticality": "tier-0",
+              "owner": "order-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.5,
+              "errorBudgetPercent": 0.5,
+              "indicators": [
+                {"id":"sli-cancel-modify","name":"Cancel/modify success","type":"availability","unit":"percent","objectiveDirection":"gte","target":99.5,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-address-change",
+              "name": "Address Change Success",
+              "description": "% address change requests successfully applied",
+              "criticality": "tier-1",
+              "owner": "order-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-address-change","name":"Address change success","type":"availability","unit":"percent","objectiveDirection":"gte","target":99.0,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-reroute",
+              "name": "Package Re-route Success",
+              "description": "% re-route requests successfully communicated to carrier",
+              "criticality": "tier-2",
+              "owner": "fulfillment-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 95.0,
+              "errorBudgetPercent": 5.0,
+              "indicators": [
+                {"id":"sli-reroute","name":"Re-route success","type":"quality","unit":"percent","objectiveDirection":"gte","target":95.0,"source":"server"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "journey-om-returns",
+          "name": "Returns & Refunds",
+          "experience": "Order Management",
+          "slos": [
+            {
+              "id": "slo-rma-create",
+              "name": "RMA Creation Success",
+              "description": "% RMA requests successfully created",
+              "criticality": "tier-0",
+              "owner": "order-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.9,
+              "errorBudgetPercent": 0.1,
+              "indicators": [
+                {"id":"sli-rma-create","name":"RMA creation success","type":"availability","unit":"percent","objectiveDirection":"gte","target":99.9,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-om-refund-time",
+              "name": "Refund Processing Timeliness",
+              "description": "% refunds initiated within 24h of return received",
+              "criticality": "tier-0",
+              "owner": "payments-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-om-refund-time","name":"Refund timeliness","type":"quality","unit":"percent","objectiveDirection":"gte","target":99.0,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-om-tender-parity",
+              "name": "Refund Tender Parity",
+              "description": "% refunds issued to correct original tender method",
+              "criticality": "tier-1",
+              "owner": "payments-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.99,
+              "errorBudgetPercent": 0.01,
+              "indicators": [
+                {"id":"sli-om-tender-parity","name":"Tender method parity","type":"correctness","unit":"percent","objectiveDirection":"gte","target":99.99,"source":"server"}
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Marketing & Loyalty",
+      "journeys": [
+        {
+          "id": "journey-enrollment",
+          "name": "Enrollment & Profile",
+          "experience": "Marketing & Loyalty",
+          "slos": [
+            {
+              "id": "slo-loyalty-join",
+              "name": "Loyalty Program Enrollment Success",
+              "description": "% enrollment requests successfully processed",
+              "criticality": "tier-0",
+              "owner": "loyalty-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.5,
+              "errorBudgetPercent": 0.5,
+              "indicators": [
+                {"id":"sli-loyalty-join","name":"Enrollment success","type":"availability","unit":"percent","objectiveDirection":"gte","target":99.5,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-consent-capture",
+              "name": "Consent Capture Success",
+              "description": "% consent preferences successfully recorded",
+              "criticality": "tier-1",
+              "owner": "privacy-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.9,
+              "errorBudgetPercent": 0.1,
+              "indicators": [
+                {"id":"sli-consent-capture","name":"Consent capture success","type":"availability","unit":"percent","objectiveDirection":"gte","target":99.9,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-account-merge",
+              "name": "Account Merge Success",
+              "description": "% account merge operations completed successfully",
+              "criticality": "tier-2",
+              "owner": "identity-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-account-merge","name":"Merge success","type":"quality","unit":"percent","objectiveDirection":"gte","target":99.0,"source":"server"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "journey-balance-offers",
+          "name": "Balance & Offers",
+          "experience": "Marketing & Loyalty",
+          "slos": [
+            {
+              "id": "slo-balance-fetch",
+              "name": "Points Balance Fetch Success",
+              "description": "% points/Kohl's Cash balance queries that succeed",
+              "criticality": "tier-0",
+              "owner": "loyalty-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.9,
+              "errorBudgetPercent": 0.1,
+              "indicators": [
+                {"id":"sli-balance-fetch","name":"Balance fetch success","type":"availability","unit":"percent","objectiveDirection":"gte","target":99.9,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-points-accrual",
+              "name": "Points Accrual Accuracy",
+              "description": "% transactions with correct points accrued",
+              "criticality": "tier-1",
+              "owner": "loyalty-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.99,
+              "errorBudgetPercent": 0.01,
+              "indicators": [
+                {"id":"sli-points-accrual","name":"Accrual accuracy","type":"correctness","unit":"percent","objectiveDirection":"gte","target":99.99,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-expiration-correctness",
+              "name": "Expiration Date Correctness",
+              "description": "% points/offers with correct expiration dates applied",
+              "criticality": "tier-2",
+              "owner": "loyalty-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.9,
+              "errorBudgetPercent": 0.1,
+              "indicators": [
+                {"id":"sli-expiry-correct","name":"Expiration correctness","type":"correctness","unit":"percent","objectiveDirection":"gte","target":99.9,"source":"server"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "journey-apply-checkout",
+          "name": "Apply at Cart/Checkout",
+          "experience": "Marketing & Loyalty",
+          "slos": [
+            {
+              "id": "slo-offer-apply",
+              "name": "Offer Application Success",
+              "description": "% offers successfully applied at cart/checkout",
+              "criticality": "tier-0",
+              "owner": "pricing-catalog",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.5,
+              "errorBudgetPercent": 0.5,
+              "indicators": [
+                {"id":"sli-offer-apply","name":"Offer apply success","type":"availability","unit":"percent","objectiveDirection":"gte","target":99.5,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-discount-persistence",
+              "name": "Discount Persistence",
+              "description": "% applied discounts that persist through checkout completion",
+              "criticality": "tier-1",
+              "owner": "pricing-catalog",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.9,
+              "errorBudgetPercent": 0.1,
+              "indicators": [
+                {"id":"sli-discount-persist","name":"Discount persistence","type":"quality","unit":"percent","objectiveDirection":"gte","target":99.9,"source":"server"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "journey-campaign-personalization",
+          "name": "Campaign & Personalization",
+          "experience": "Marketing & Loyalty",
+          "slos": [
+            {
+              "id": "slo-offer-eligibility",
+              "name": "Offer Eligibility Compute Success",
+              "description": "% eligibility calculations that complete successfully",
+              "criticality": "tier-1",
+              "owner": "personalization-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.5,
+              "errorBudgetPercent": 0.5,
+              "indicators": [
+                {"id":"sli-eligibility-compute","name":"Eligibility compute success","type":"availability","unit":"percent","objectiveDirection":"gte","target":99.5,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-cms-slot-render",
+              "name": "CMS Slot Render Success",
+              "description": "% personalized content slots that render successfully",
+              "criticality": "tier-1",
+              "owner": "cms-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-cms-render","name":"CMS render success","type":"availability","unit":"percent","objectiveDirection":"gte","target":99.0,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-personalization-latency",
+              "name": "Personalization Engine Latency p95",
+              "description": "p95 response time for personalization API",
+              "criticality": "tier-2",
+              "owner": "personalization-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-personalization-p95","name":"Personalization p95","type":"latency","unit":"ms","objectiveDirection":"lte","target":500,"source":"server"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "journey-loyalty-notifications",
+          "name": "Notifications",
+          "experience": "Marketing & Loyalty",
+          "slos": [
+            {
+              "id": "slo-promo-delivery",
+              "name": "Promo Communication Delivery Success",
+              "description": "% promo/loyalty messages successfully delivered",
+              "criticality": "tier-1",
+              "owner": "notifications",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-promo-delivery","name":"Promo delivery success","type":"quality","unit":"percent","objectiveDirection":"gte","target":99.0,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-notification-latency",
+              "name": "Notification Send Latency p95",
+              "description": "p95 time from trigger to message sent",
+              "criticality": "tier-2",
+              "owner": "notifications",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-notif-latency-p95","name":"Notification latency p95","type":"latency","unit":"ms","objectiveDirection":"lte","target":5000,"source":"server"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "journey-retail-media",
+          "name": "Retail Media",
+          "experience": "Marketing & Loyalty",
+          "slos": [
+            {
+              "id": "slo-ad-request",
+              "name": "Ad Request Success Rate",
+              "description": "% ad requests that return successfully",
+              "criticality": "tier-2",
+              "owner": "retail-media",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-ad-request","name":"Ad request success","type":"availability","unit":"percent","objectiveDirection":"gte","target":99.0,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-ad-render-latency",
+              "name": "Ad Render Latency p95",
+              "description": "p95 ad rendering time",
+              "criticality": "tier-2",
+              "owner": "retail-media",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-ad-render-p95","name":"Ad render p95","type":"latency","unit":"ms","objectiveDirection":"lte","target":300,"source":"server"}
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Cross-Journey",
+      "journeys": [
+        {
+          "id": "journey-payments-platform",
+          "name": "Payments Platform",
+          "experience": "Cross-Journey",
+          "slos": [
+            {
+              "id": "slo-psp-uptime",
+              "name": "PSP Uptime",
+              "description": "% uptime for payment service provider APIs",
+              "criticality": "tier-0",
+              "owner": "payments-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.99,
+              "errorBudgetPercent": 0.01,
+              "indicators": [
+                {"id":"sli-psp-uptime","name":"PSP availability","type":"availability","unit":"percent","objectiveDirection":"gte","target":99.99,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-issuer-cohort-success",
+              "name": "Issuer Cohort Success Rate",
+              "description": "% successful authorizations across issuer cohorts",
+              "criticality": "tier-0",
+              "owner": "payments-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 98.5,
+              "errorBudgetPercent": 1.5,
+              "indicators": [
+                {"id":"sli-issuer-success","name":"Issuer approval rate","type":"quality","unit":"percent","objectiveDirection":"gte","target":98.5,"source":"server"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "journey-fraud-platform",
+          "name": "Fraud Detection",
+          "experience": "Cross-Journey",
+          "slos": [
+            {
+              "id": "slo-fraud-decision-latency",
+              "name": "Fraud Decision Latency p95",
+              "description": "p95 fraud decision response time",
+              "criticality": "tier-0",
+              "owner": "fraud-risk",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-fraud-decision-p95","name":"Fraud decision p95","type":"latency","unit":"ms","objectiveDirection":"lte","target":200,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-false-positive-rate",
+              "name": "False Positive Rate Ceiling",
+              "description": "% legitimate transactions incorrectly flagged as fraudulent",
+              "criticality": "tier-1",
+              "owner": "fraud-risk",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 98.0,
+              "errorBudgetPercent": 2.0,
+              "indicators": [
+                {"id":"sli-false-positive","name":"Legitimate transaction pass rate","type":"quality","unit":"percent","objectiveDirection":"gte","target":98.0,"source":"server"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "journey-tax-address-geo",
+          "name": "Tax/Address/Geo Services",
+          "experience": "Cross-Journey",
+          "slos": [
+            {
+              "id": "slo-tax-calc-latency",
+              "name": "Tax Calculation Latency p95",
+              "description": "p95 tax calculation response time",
+              "criticality": "tier-0",
+              "owner": "pricing-catalog",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-tax-calc-p95","name":"Tax calc p95","type":"latency","unit":"ms","objectiveDirection":"lte","target":250,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-address-verify-latency",
+              "name": "Address Verification Latency p95",
+              "description": "p95 address verification response time",
+              "criticality": "tier-1",
+              "owner": "checkout-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-address-verify-p95","name":"Address verify p95","type":"latency","unit":"ms","objectiveDirection":"lte","target":250,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-geo-tax-correctness",
+              "name": "Geo/Tax Calculation Correctness",
+              "description": "% tax calculations that match expected values",
+              "criticality": "tier-0",
+              "owner": "pricing-catalog",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.99,
+              "errorBudgetPercent": 0.01,
+              "indicators": [
+                {"id":"sli-tax-correctness","name":"Tax calculation accuracy","type":"correctness","unit":"percent","objectiveDirection":"gte","target":99.99,"source":"server"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "journey-messaging-notifications",
+          "name": "Messaging & Notifications",
+          "experience": "Cross-Journey",
+          "slos": [
+            {
+              "id": "slo-notification-provider-accept",
+              "name": "Notification Provider Accept Time p95",
+              "description": "p95 time for provider to accept message",
+              "criticality": "tier-1",
+              "owner": "notifications",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-notif-accept-p95","name":"Provider accept p95","type":"latency","unit":"ms","objectiveDirection":"lte","target":2000,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-notification-delivery-success",
+              "name": "Notification Delivery Success",
+              "description": "% notifications successfully delivered to provider",
+              "criticality": "tier-1",
+              "owner": "notifications",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.9,
+              "errorBudgetPercent": 0.1,
+              "indicators": [
+                {"id":"sli-notif-delivery-success","name":"Notification delivery success","type":"quality","unit":"percent","objectiveDirection":"gte","target":99.9,"source":"server"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "journey-edge-cdn",
+          "name": "Edge & CDN",
+          "experience": "Cross-Journey",
+          "slos": [
+            {
+              "id": "slo-edge-reachability",
+              "name": "Edge Reachability",
+              "description": "% uptime for edge nodes across all regions",
+              "criticality": "tier-0",
+              "owner": "infrastructure",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.99,
+              "errorBudgetPercent": 0.01,
+              "indicators": [
+                {"id":"sli-edge-reachability","name":"Edge availability","type":"availability","unit":"percent","objectiveDirection":"gte","target":99.99,"source":"synthetic"}
+              ]
+            },
+            {
+              "id": "slo-cdn-ttfb",
+              "name": "CDN TTFB p95 Budget",
+              "description": "p95 time to first byte per region",
+              "criticality": "tier-0",
+              "owner": "infrastructure",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-cdn-ttfb-p95","name":"CDN TTFB p95","type":"latency","unit":"ms","objectiveDirection":"lte","target":100,"source":"rum"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "journey-observability",
+          "name": "Observability",
+          "experience": "Cross-Journey",
+          "slos": [
+            {
+              "id": "slo-trace-coverage",
+              "name": "Trace Coverage for Key Paths",
+              "description": "% of critical user journeys with distributed tracing",
+              "criticality": "tier-1",
+              "owner": "sre-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 90.0,
+              "errorBudgetPercent": 10.0,
+              "indicators": [
+                {"id":"sli-trace-coverage","name":"Trace coverage","type":"quality","unit":"percent","objectiveDirection":"gte","target":90.0,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-metric-ingest-age",
+              "name": "Metric Ingest Freshness",
+              "description": "p95 age of metrics at query time",
+              "criticality": "tier-2",
+              "owner": "sre-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-metric-age-p95","name":"Metric ingest age p95","type":"latency","unit":"ms","objectiveDirection":"lte","target":60000,"source":"server"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "journey-cicd-release",
+          "name": "CI/CD & Release",
+          "experience": "Cross-Journey",
+          "slos": [
+            {
+              "id": "slo-post-release-breach",
+              "name": "Post-Release Breach Rate",
+              "description": "% of releases NOT causing an SLO breach within 1h",
+              "criticality": "tier-1",
+              "owner": "devops",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.5,
+              "errorBudgetPercent": 0.5,
+              "indicators": [
+                {"id":"sli-release-breach-rate","name":"Safe release rate","type":"quality","unit":"percent","objectiveDirection":"gte","target":99.5,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-rollback-mttr",
+              "name": "Rollback MTTR p95",
+              "description": "p95 mean time to rollback failed deployments",
+              "criticality": "tier-1",
+              "owner": "devops",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-rollback-p95","name":"Rollback time p95","type":"latency","unit":"ms","objectiveDirection":"lte","target":600000,"source":"server"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "journey-feature-flags-config",
+          "name": "Feature Flags & Config",
+          "experience": "Cross-Journey",
+          "slos": [
+            {
+              "id": "slo-bad-push-blast-radius",
+              "name": "Bad Config Push Blast Radius Ceiling",
+              "description": "% of services NOT affected by bad config push",
+              "criticality": "tier-0",
+              "owner": "sre-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.9,
+              "errorBudgetPercent": 0.1,
+              "indicators": [
+                {"id":"sli-config-isolation","name":"Config isolation rate","type":"quality","unit":"percent","objectiveDirection":"gte","target":99.9,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-config-change-lead-time",
+              "name": "Config Change Lead Time p95",
+              "description": "p95 time from config commit to live propagation",
+              "criticality": "tier-2",
+              "owner": "sre-platform",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-config-lead-p95","name":"Config change lead time p95","type":"latency","unit":"ms","objectiveDirection":"lte","target":30000,"source":"server"}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "journey-data-infrastructure",
+          "name": "Data/Queues/Cache/DB",
+          "experience": "Cross-Journey",
+          "slos": [
+            {
+              "id": "slo-db-latency-p99",
+              "name": "Database Query Latency p99",
+              "description": "p99 database query response time",
+              "criticality": "tier-0",
+              "owner": "infrastructure",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-db-p99","name":"DB query p99","type":"latency","unit":"ms","objectiveDirection":"lte","target":50,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-cache-availability",
+              "name": "Cache Tier Availability",
+              "description": "% cache queries that succeed",
+              "criticality": "tier-1",
+              "owner": "infrastructure",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.9,
+              "errorBudgetPercent": 0.1,
+              "indicators": [
+                {"id":"sli-cache-avail","name":"Cache availability","type":"availability","unit":"percent","objectiveDirection":"gte","target":99.9,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-queue-latency-p99",
+              "name": "Queue Processing Latency p99",
+              "description": "p99 message queue processing time",
+              "criticality": "tier-1",
+              "owner": "infrastructure",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-queue-p99","name":"Queue processing p99","type":"latency","unit":"ms","objectiveDirection":"lte","target":500,"source":"server"}
+              ]
+            },
+            {
+              "id": "slo-replication-lag",
+              "name": "Replication Lag p95",
+              "description": "p95 database replication lag",
+              "criticality": "tier-1",
+              "owner": "infrastructure",
+              "budgetingWindowDays": 28,
+              "objectivePercent": 99.0,
+              "errorBudgetPercent": 1.0,
+              "indicators": [
+                {"id":"sli-replication-lag-p95","name":"Replication lag p95","type":"latency","unit":"ms","objectiveDirection":"lte","target":1000,"source":"server"}
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
