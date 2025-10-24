@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { useData } from "../store/useData";
 import type { ExperienceRollup, SLO } from "../models/slo";
 import {
@@ -17,14 +17,15 @@ import BurnBar from "../components/BurnBar";
 export default function Home() {
   const { seed, series, loading, error, fetchData } = useData();
   const experiences: ExperienceRollup[] = seed.experiences;
+  const hasFetched = useRef(false);
 
-  // Fetch data on mount
+  // Fetch data once on mount
   useEffect(() => {
-    if (experiences.length === 0 && !loading && !error) {
+    if (!hasFetched.current && experiences.length === 0 && !loading && !error) {
+      hasFetched.current = true;
       fetchData();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [experiences.length, loading, error]);
+  }, [experiences.length, loading, error, fetchData]);
   
   const [selectedJourneyId, setSelectedJourneyId] = useState<string | null>(null);
   const [expandedExperiences, setExpandedExperiences] = useState<Record<string, boolean>>({});
