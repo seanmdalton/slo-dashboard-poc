@@ -23,7 +23,8 @@ export default function Home() {
     if (experiences.length === 0 && !loading && !error) {
       fetchData();
     }
-  }, [experiences.length, loading, error, fetchData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [experiences.length, loading, error]);
   
   const [selectedJourneyId, setSelectedJourneyId] = useState<string | null>(null);
   const [expandedExperiences, setExpandedExperiences] = useState<Record<string, boolean>>({});
