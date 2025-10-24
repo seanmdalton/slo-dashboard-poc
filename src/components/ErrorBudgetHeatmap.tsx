@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import type { DataPoint } from "../lib/sloMath";
+import type { DataPoint } from "../models/slo";
 import { aggregateByHour } from "../lib/sloMath";
 import type { SLI } from "../models/slo";
 

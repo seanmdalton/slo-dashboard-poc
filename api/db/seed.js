@@ -70,7 +70,7 @@ function generateAvailabilityDataPoints(sliId, target, targetBudgetRemaining, in
   return points;
 }
 
-// Generate realistic latency data points
+// Generate realistic latency data points with percentiles
 function generateLatencyDataPoints(sliId, targetMs, targetBudgetRemaining, incidents, startDate, endDate) {
   const points = [];
   const budgetFactor = 1 - targetBudgetRemaining;
@@ -89,7 +89,18 @@ function generateLatencyDataPoints(sliId, targetMs, targetBudgetRemaining, incid
       }
     }
     
-    const latency = Math.max(10, randn(baselineMs * spike, noise));
+    // Generate realistic percentile distribution
+    // p50 (median) is close to baseline
+    const p50 = Math.max(10, randn(baselineMs * spike * 0.85, noise * 0.5));
+    // p90 is moderately higher
+    const p90 = Math.max(10, randn(baselineMs * spike * 1.0, noise * 0.7));
+    // p95 is higher still
+    const p95 = Math.max(10, randn(baselineMs * spike * 1.15, noise * 0.9));
+    // p99 has the most tail latency (especially during incidents)
+    const p99 = Math.max(10, randn(baselineMs * spike * 1.5, noise * 1.2));
+    
+    // Ensure logical ordering: p50 <= p90 <= p95 <= p99
+    const sorted = [p50, p90, p95, p99].sort((a, b) => a - b);
     
     points.push({
       id: generateId('dp'),
@@ -97,7 +108,11 @@ function generateLatencyDataPoints(sliId, targetMs, targetBudgetRemaining, incid
       timestamp: new Date(t),
       good: 0,
       bad: 0,
-      value: Math.round(latency).toString(),
+      value: Math.round(sorted[2]).toString(), // Keep value as p95 for backward compatibility
+      p50: Math.round(sorted[0]).toString(),
+      p90: Math.round(sorted[1]).toString(),
+      p95: Math.round(sorted[2]).toString(),
+      p99: Math.round(sorted[3]).toString(),
     });
   }
   

@@ -1,7 +1,6 @@
 import { useMemo } from "react";
-import type { DataPoint } from "../lib/sloMath";
+import type { DataPoint, SLI } from "../models/slo";
 import { detectIncidents } from "../lib/sloMath";
-import type { SLI } from "../models/slo";
 
 interface IncidentTimelineProps {
   data: DataPoint[];
@@ -11,12 +10,14 @@ interface IncidentTimelineProps {
 export default function IncidentTimeline({ data, sli }: IncidentTimelineProps) {
   const incidents = useMemo(() => detectIncidents(data, sli), [data, sli]);
 
-  // Show last 7 days
-  const now = new Date();
-  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  // Show last 7 days from fixed demo data end date
+  // Demo data represents Sept 26 - Oct 24, 2025 (fixed, will not age)
+  // Charts display through Oct 23 to avoid showing partial Oct 24 data
+  const demoEndDate = new Date('2025-10-23T23:59:59Z');
+  const sevenDaysAgo = new Date(demoEndDate.getTime() - 7 * 24 * 60 * 60 * 1000);
   
   const recentIncidents = incidents.filter(inc => 
-    new Date(inc.timestamp) >= sevenDaysAgo
+    new Date(inc.timestamp) >= sevenDaysAgo && new Date(inc.timestamp) <= demoEndDate
   );
 
   if (recentIncidents.length === 0) {
@@ -32,7 +33,7 @@ export default function IncidentTimeline({ data, sli }: IncidentTimelineProps) {
   // Calculate position of each incident
   const getPosition = (timestamp: string): number => {
     const incidentTime = new Date(timestamp).getTime();
-    const range = now.getTime() - sevenDaysAgo.getTime();
+    const range = demoEndDate.getTime() - sevenDaysAgo.getTime();
     const offset = incidentTime - sevenDaysAgo.getTime();
     return (offset / range) * 100;
   };
@@ -73,10 +74,10 @@ export default function IncidentTimeline({ data, sli }: IncidentTimelineProps) {
 
         {/* Timeline labels */}
         <div className="absolute top-full left-0 text-xs text-neutral-500 dark:text-neutral-400 mt-1">
-          7d ago
+          {sevenDaysAgo.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
         </div>
         <div className="absolute top-full right-0 text-xs text-neutral-500 dark:text-neutral-400 mt-1">
-          Now
+          {demoEndDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
         </div>
       </div>
     </div>

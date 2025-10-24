@@ -140,7 +140,11 @@ app.get('/api/series', rateLimiters.heavy, validators.seriesQuery, cacheControl(
             t: dataPoints.timestamp,
             good: dataPoints.good,
             bad: dataPoints.bad,
-            value: dataPoints.value
+            value: dataPoints.value,
+            p50: dataPoints.p50,
+            p90: dataPoints.p90,
+            p95: dataPoints.p95,
+            p99: dataPoints.p99
           })
           .from(dataPoints)
           .where(
@@ -155,7 +159,11 @@ app.get('/api/series', rateLimiters.heavy, validators.seriesQuery, cacheControl(
           t: p.t.toISOString(),
           good: p.good,
           bad: p.bad,
-          value: p.value ? parseFloat(p.value) : undefined
+          value: p.value ? parseFloat(p.value) : undefined,
+          p50: p.p50 ? parseFloat(p.p50) : undefined,
+          p90: p.p90 ? parseFloat(p.p90) : undefined,
+          p95: p.p95 ? parseFloat(p.p95) : undefined,
+          p99: p.p99 ? parseFloat(p.p99) : undefined
         }));
       })
     );
@@ -177,6 +185,10 @@ app.get('/api/series', rateLimiters.heavy, validators.seriesQuery, cacheControl(
       SUM(good)::integer as good,
       SUM(bad)::integer as bad,
       AVG(value) as avg_value,
+      AVG(p50) as avg_p50,
+      AVG(p90) as avg_p90,
+      AVG(p95) as avg_p95,
+      AVG(p99) as avg_p99,
       COUNT(*)::integer as count
     FROM data_points
     WHERE timestamp >= '${cutoffISO}'
@@ -201,7 +213,11 @@ app.get('/api/series', rateLimiters.heavy, validators.seriesQuery, cacheControl(
       t: new Date(row.bucket).toISOString(),
       good: parseInt(row.good),
       bad: parseInt(row.bad),
-      value: row.avg_value ? parseFloat(parseFloat(row.avg_value).toFixed(2)) : undefined
+      value: row.avg_value ? parseFloat(parseFloat(row.avg_value).toFixed(2)) : undefined,
+      p50: row.avg_p50 ? parseFloat(parseFloat(row.avg_p50).toFixed(2)) : undefined,
+      p90: row.avg_p90 ? parseFloat(parseFloat(row.avg_p90).toFixed(2)) : undefined,
+      p95: row.avg_p95 ? parseFloat(parseFloat(row.avg_p95).toFixed(2)) : undefined,
+      p99: row.avg_p99 ? parseFloat(parseFloat(row.avg_p99).toFixed(2)) : undefined
     });
   }
   
@@ -228,7 +244,11 @@ app.get(
         t: dataPoints.timestamp,
         good: dataPoints.good,
         bad: dataPoints.bad,
-        value: dataPoints.value
+        value: dataPoints.value,
+        p50: dataPoints.p50,
+        p90: dataPoints.p90,
+        p95: dataPoints.p95,
+        p99: dataPoints.p99
       })
       .from(dataPoints)
       .where(
@@ -250,7 +270,11 @@ app.get(
       t: p.t.toISOString(),
       good: p.good,
       bad: p.bad,
-      value: p.value ? parseFloat(p.value) : undefined
+      value: p.value ? parseFloat(p.value) : undefined,
+      p50: p.p50 ? parseFloat(p.p50) : undefined,
+      p90: p.p90 ? parseFloat(p.p90) : undefined,
+      p95: p.p95 ? parseFloat(p.p95) : undefined,
+      p99: p.p99 ? parseFloat(p.p99) : undefined
     }));
     
     res.json(formatted);
@@ -281,7 +305,11 @@ app.post(
           t: dataPoints.timestamp,
           good: dataPoints.good,
           bad: dataPoints.bad,
-          value: dataPoints.value
+          value: dataPoints.value,
+          p50: dataPoints.p50,
+          p90: dataPoints.p90,
+          p95: dataPoints.p95,
+          p99: dataPoints.p99
         })
         .from(dataPoints)
         .where(
@@ -296,7 +324,11 @@ app.post(
         t: p.t.toISOString(),
         good: p.good,
         bad: p.bad,
-        value: p.value ? parseFloat(p.value) : undefined
+        value: p.value ? parseFloat(p.value) : undefined,
+        p50: p.p50 ? parseFloat(p.p50) : undefined,
+        p90: p.p90 ? parseFloat(p.p90) : undefined,
+        p95: p.p95 ? parseFloat(p.p95) : undefined,
+        p99: p.p99 ? parseFloat(p.p99) : undefined
       }));
     }
     

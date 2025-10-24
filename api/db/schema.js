@@ -63,7 +63,12 @@ export const dataPoints = pgTable('data_points', {
   timestamp: timestamp('timestamp').notNull(),
   good: integer('good').notNull().default(0), // for availability metrics
   bad: integer('bad').notNull().default(0), // for availability metrics
-  value: decimal('value', { precision: 12, scale: 3 }), // for latency/other metrics
+  value: decimal('value', { precision: 12, scale: 3 }), // for latency/other metrics (deprecated, use percentiles)
+  // Percentile data for latency metrics
+  p50: decimal('p50', { precision: 12, scale: 3 }), // 50th percentile (median)
+  p90: decimal('p90', { precision: 12, scale: 3 }), // 90th percentile
+  p95: decimal('p95', { precision: 12, scale: 3 }), // 95th percentile
+  p99: decimal('p99', { precision: 12, scale: 3 }), // 99th percentile
   createdAt: timestamp('created_at').defaultNow().notNull(),
 }, (table) => ({
   sliTimestampIdx: index('data_points_sli_timestamp_idx').on(table.sliId, table.timestamp),

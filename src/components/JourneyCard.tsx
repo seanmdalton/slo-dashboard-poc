@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
-import type { Journey } from "../models/slo";
-import type { DataPoint } from "../lib/sloMath";
+import type { Journey, DataPoint } from "../models/slo";
 import SLISpark from "./SLISpark";
 import BurnBar from "./BurnBar";
 

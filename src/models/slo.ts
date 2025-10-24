@@ -1,6 +1,18 @@
 export type SLIType = "availability" | "latency" | "quality" | "freshness" | "correctness";
 export type TimeWindow = "7d" | "28d" | "90d";
 
+export interface DataPoint {
+  t: string; // ISO timestamp
+  good: number; // for availability metrics
+  bad: number; // for availability metrics
+  value?: number; // legacy single value (deprecated for latency)
+  // Percentile data for latency metrics
+  p50?: number; // 50th percentile (median)
+  p90?: number; // 90th percentile
+  p95?: number; // 95th percentile
+  p99?: number; // 99th percentile
+}
+
 export interface SLI {
   id: string;
   name: string;

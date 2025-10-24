@@ -1,5 +1,5 @@
 import { LineChart, Line, ResponsiveContainer, YAxis } from "recharts";
-import type { DataPoint } from "../lib/sloMath";
+import type { DataPoint } from "../models/slo";
 import type { SLI } from "../models/slo";
 
 interface SLISparkProps {

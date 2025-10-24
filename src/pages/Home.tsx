@@ -10,9 +10,11 @@ import {
   sliceTimeWindow,
   getLatencyCompliancePercent
 } from "../lib/sloMath";
-import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, Line, ComposedChart } from "recharts";
 import IncidentTimeline from "../components/IncidentTimeline";
 import BurnBar from "../components/BurnBar";
+import { SLIChart } from "../components/SLIChart";
+import { ReliabilityBurnDownChart } from "../components/ReliabilityBurnDownChart";
+import { BurnRateChart } from "../components/BurnRateChart";
 
 export default function Home() {
   const { seed, series, loading, error, fetchData } = useData();
@@ -205,12 +207,13 @@ export default function Home() {
           const data = series[primarySLI.id] || [];
           if (data.length < 14) return;
           
-          const now = Date.now();
+          // Use fixed demo data end date (display through Oct 23)
+          const demoEndDate = new Date('2025-10-23T23:59:59Z').getTime();
           const last7Days = sliceTimeWindow(data, 7 * 24 * 60 * 60 * 1000);
           const previous7Days = data.filter(point => {
             const pointTime = new Date(point.t).getTime();
-            const sevenDaysAgo = now - (7 * 24 * 60 * 60 * 1000);
-            const fourteenDaysAgo = now - (14 * 24 * 60 * 60 * 1000);
+            const sevenDaysAgo = demoEndDate - (7 * 24 * 60 * 60 * 1000);
+            const fourteenDaysAgo = demoEndDate - (14 * 24 * 60 * 60 * 1000);
             return pointTime >= fourteenDaysAgo && pointTime < sevenDaysAgo;
           });
           
@@ -616,6 +619,7 @@ export default function Home() {
                   setFilterOwner("all");
                 }}
                 onSelectJourney={selectJourneyAndClearSearch}
+                darkMode={darkMode}
                 timeRangeDays={timeRangeDays}
               />
             ) : !selectedJourney ? (
@@ -822,6 +826,7 @@ export default function Home() {
                   setExpandedSLOs={setExpandedSLOs}
                   sloStatuses={allSLOStatuses}
                   seriesData={series}
+                  darkMode={darkMode}
                   timeRangeDays={timeRangeDays}
                 />
               </div>
@@ -855,6 +860,7 @@ interface SearchResultsViewProps {
   setExpandedSLOs: React.Dispatch<React.SetStateAction<{ [key: string]: boolean }>>;
   onClearSearch: () => void;
   onSelectJourney: (journeyId: string) => void;
+  darkMode?: boolean;
   timeRangeDays?: number;
 }
 
@@ -874,6 +880,7 @@ function SearchResultsView({
   setExpandedSLOs,
   onClearSearch,
   onSelectJourney,
+  darkMode = false,
   timeRangeDays = 28
 }: SearchResultsViewProps) {
   
@@ -1078,6 +1085,7 @@ function SearchResultsView({
                 status={sloStatuses.get(slo.id)}
                 isExpanded={expandedSLOs[slo.id] || false}
                 onToggle={() => toggleSLO(slo.id)}
+                darkMode={darkMode}
                 timeRangeDays={timeRangeDays}
               />
             </div>
@@ -1101,10 +1109,11 @@ interface JourneySectionProps {
   setExpandedSLOs: React.Dispatch<React.SetStateAction<{ [key: string]: boolean }>>;
   sloStatuses: Map<string, { meetsObjective: boolean; status: "ok" | "warn" | "critical"; errorBudget: { errorBudgetPercent: number; spent: number; remaining: number; spentPercent: number; remainingPercent: number } }>;
   seriesData: Record<string, { t: string; good: number; bad: number; value?: number }[]>;
+  darkMode?: boolean;
   timeRangeDays?: number;
 }
 
-function JourneySection({ journey, expandedTiers, expandedSLOs, setExpandedTiers, setExpandedSLOs, sloStatuses, seriesData, timeRangeDays = 28 }: JourneySectionProps) {
+function JourneySection({ journey, expandedTiers, expandedSLOs, setExpandedTiers, setExpandedSLOs, sloStatuses, seriesData, darkMode = false, timeRangeDays = 28 }: JourneySectionProps) {
   
   // Sort and filter state
   const [sortBy, setSortBy] = useState<"status" | "errorBudget" | "burnRate" | "name">("status");
@@ -1405,6 +1414,7 @@ function JourneySection({ journey, expandedTiers, expandedSLOs, setExpandedTiers
                         status={sloStatuses.get(slo.id)}
                         isExpanded={expandedSLOs[slo.id] || false}
                         onToggle={() => toggleSLO(slo.id)}
+                        darkMode={darkMode}
                         timeRangeDays={timeRangeDays}
                       />
                     ))}
@@ -1426,13 +1436,15 @@ interface SLOCardProps {
   status?: { meetsObjective: boolean; errorBudget: { errorBudgetPercent: number; spent: number; remaining: number; spentPercent: number; remainingPercent: number }; status: "ok" | "warn" | "critical" };
   isExpanded: boolean;
   onToggle: () => void;
+  darkMode?: boolean;
 }
 
-function SLOCard({ slo, seriesData, status, isExpanded, onToggle, timeRangeDays = 28 }: SLOCardProps & { timeRangeDays?: number }) {
+function SLOCard({ slo, seriesData, status, isExpanded, onToggle, darkMode = false, timeRangeDays = 28 }: SLOCardProps & { timeRangeDays?: number }) {
   const primarySLI = slo.indicators[0];
   const data = seriesData[primarySLI?.id] || [];
 
   const windowData = sliceTimeWindow(data, timeRangeDays * 24 * 60 * 60 * 1000);
+  const chartWindowData = sliceTimeWindow(data, 7 * 24 * 60 * 60 * 1000); // 7 days for charts (hourly granularity)
   const currentValue = getCurrentSLIValue(primarySLI, windowData);
   const meetsObjective = status?.meetsObjective ?? isSLIMeetingObjective(primarySLI, currentValue);
   
@@ -1469,12 +1481,13 @@ function SLOCard({ slo, seriesData, status, isExpanded, onToggle, timeRangeDays 
   const getTrendIndicator = () => {
     if (!primarySLI || data.length < 14) return null;
     
-    const now = Date.now();
+    // Use fixed demo data end date (display through Oct 23)
+    const demoEndDate = new Date('2025-10-23T23:59:59Z').getTime();
     const last7Days = sliceTimeWindow(data, 7 * 24 * 60 * 60 * 1000);
     const previous7Days = data.filter(point => {
       const pointTime = new Date(point.t).getTime();
-      const sevenDaysAgo = now - (7 * 24 * 60 * 60 * 1000);
-      const fourteenDaysAgo = now - (14 * 24 * 60 * 60 * 1000);
+      const sevenDaysAgo = demoEndDate - (7 * 24 * 60 * 60 * 1000);
+      const fourteenDaysAgo = demoEndDate - (14 * 24 * 60 * 60 * 1000);
       return pointTime >= fourteenDaysAgo && pointTime < sevenDaysAgo;
     });
     
@@ -1508,99 +1521,6 @@ function SLOCard({ slo, seriesData, status, isExpanded, onToggle, timeRangeDays 
     );
   };
 
-  const chartData = useMemo(() => {
-    const timeRange = Math.min(timeRangeDays, 7) * 24 * 60 * 60 * 1000; // Use min of 7 days for chart
-    const windowData = sliceTimeWindow(data, timeRange);
-    
-    // Group data by day
-    const dailyData = new Map<string, { values: number[], good: number, bad: number, count: number }>();
-    
-    windowData.forEach(point => {
-      const date = new Date(point.t).toLocaleDateString();
-      
-      let value: number;
-      if (primarySLI.type === "latency") {
-        value = point.value ?? 0;
-      } else {
-        const total = point.good + point.bad;
-        value = total > 0 ? (point.good / total) * 100 : 100;
-      }
-      
-      if (!dailyData.has(date)) {
-        dailyData.set(date, { values: [], good: 0, bad: 0, count: 0 });
-      }
-      
-      const dayData = dailyData.get(date)!;
-      dayData.values.push(value);
-      dayData.good += point.good;
-      dayData.bad += point.bad;
-      dayData.count++;
-    });
-    
-    // Calculate daily averages and CUMULATIVE error budget
-    // Error budgets accumulate over time and never reset
-    let cumulativeGood = 0;
-    let cumulativeBad = 0;
-    let cumulativeLatencyMeetingTarget = 0;
-    let cumulativeLatencyTotal = 0;
-    
-    return Array.from(dailyData.entries()).map(([date, dayData]) => {
-      let avgValue: number;
-      
-      if (primarySLI.type === "latency") {
-        avgValue = dayData.values.reduce((a, b) => a + b, 0) / dayData.values.length;
-        // For latency, track cumulative compliance
-        const meetingTarget = dayData.values.filter(v => 
-          primarySLI.objectiveDirection === "lte" ? v <= primarySLI.target : v >= primarySLI.target
-        ).length;
-        cumulativeLatencyMeetingTarget += meetingTarget;
-        cumulativeLatencyTotal += dayData.values.length;
-      } else {
-        const total = dayData.good + dayData.bad;
-        avgValue = total > 0 ? (dayData.good / total) * 100 : 100;
-        // For availability, track cumulative good/bad
-        cumulativeGood += dayData.good;
-        cumulativeBad += dayData.bad;
-      }
-      
-      // Calculate CUMULATIVE performance over all time so far
-      let cumulativePerformance: number;
-      if (primarySLI.type === "latency") {
-        cumulativePerformance = cumulativeLatencyTotal > 0 
-          ? (cumulativeLatencyMeetingTarget / cumulativeLatencyTotal) * 100 
-          : 100;
-      } else {
-        const cumulativeTotal = cumulativeGood + cumulativeBad;
-        cumulativePerformance = cumulativeTotal > 0 
-          ? (cumulativeGood / cumulativeTotal) * 100 
-          : 100;
-      }
-      
-      // Error budget is based on cumulative performance, not daily
-      const errorBudgetData = calculateErrorBudget(cumulativePerformance, slo.objectivePercent);
-      const errorBudgetRemaining = errorBudgetData.remainingPercent;
-      
-      return {
-        time: date,
-        value: avgValue,
-        target: primarySLI.target,
-        errorBudget: errorBudgetRemaining
-      };
-    });
-  }, [data, primarySLI, slo.objectivePercent, timeRangeDays]);
-
-  // Get error budget color based on remaining percentage
-  const getErrorBudgetColor = (remaining: number) => {
-    if (remaining >= 50) return '#10b981'; // Green
-    if (remaining >= 20) return '#f59e0b'; // Amber
-    return '#ef4444'; // Red
-  };
-
-  // Calculate average error budget for consistent coloring
-  const avgErrorBudget = chartData.length > 0 
-    ? chartData.reduce((sum, d) => sum + d.errorBudget, 0) / chartData.length 
-    : 100;
-  const errorBudgetColor = getErrorBudgetColor(avgErrorBudget);
 
   return (
     <div className="border border-neutral-200 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 overflow-hidden">
@@ -1657,84 +1577,26 @@ function SLOCard({ slo, seriesData, status, isExpanded, onToggle, timeRangeDays 
             })}
           </div>
 
-          {/* Chart with Error Budget - Hidden on mobile, shown on tablet+ */}
-          <div className="hidden sm:block h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:stroke-neutral-700" />
-                <XAxis 
-                  dataKey="time" 
-                  tick={{ fontSize: 11, fill: 'currentColor' }} 
-                  className="text-neutral-500 dark:text-neutral-400"
-                />
-                <YAxis 
-                  yAxisId="left"
-                  tick={{ fontSize: 11, fill: 'currentColor' }} 
-                  className="text-neutral-500 dark:text-neutral-400"
-                  domain={primarySLI.type === "latency" ? ["auto", "auto"] : [0, 100]}
-                  label={{ value: primarySLI.type === "latency" ? "Latency (ms)" : "Success Rate (%)", angle: -90, position: 'insideLeft', style: { fontSize: 11 } }}
-                />
-                <YAxis 
-                  yAxisId="right"
-                  orientation="right"
-                  tick={{ fontSize: 11, fill: 'currentColor' }} 
-                  className="text-neutral-500 dark:text-neutral-400"
-                  domain={[0, 100]}
-                  label={{ value: "Error Budget (%)", angle: 90, position: 'insideRight', style: { fontSize: 11 } }}
-                />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'var(--tooltip-bg, white)', 
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '0.5rem'
-                  }}
-                  formatter={(value: number, name: string) => {
-                    if (name === 'value') return [value.toFixed(2), primarySLI.type === "latency" ? "Latency" : "Success Rate"];
-                    if (name === 'target') return [value.toFixed(2), "Target"];
-                    if (name === 'errorBudget') {
-                      const color = getErrorBudgetColor(value);
-                      return [
-                        <span style={{ color }}>{value.toFixed(1)}%</span>, 
-                        "Error Budget Remaining"
-                      ];
-                    }
-                    return [value, name];
-                  }}
-                />
-                
-                {/* Target line */}
-                <Line 
-                  yAxisId="left"
-                  type="monotone" 
-                  dataKey="target" 
-                  stroke="#9ca3af" 
-                  strokeDasharray="5 5" 
-                  dot={false}
-                  strokeWidth={1}
-                />
-                
-                {/* SLO performance area - Blue (neutral) */}
-                <Area
-                  yAxisId="left"
-                  type="monotone"
-                  dataKey="value"
-                  stroke="#3b82f6"
-                  fill="#dbeafe"
-                  strokeWidth={2}
-                  className="dark:fill-blue-900/30"
-                />
-                
-                {/* Error Budget line - Color coded by health */}
-                <Line 
-                  yAxisId="right"
-                  type="monotone" 
-                  dataKey="errorBudget" 
-                  stroke={errorBudgetColor}
-                  strokeWidth={2}
-                  dot={{ fill: errorBudgetColor, r: 3 }}
-                />
-              </ComposedChart>
-            </ResponsiveContainer>
+          {/* 3-Chart Layout - Hidden on mobile, shown on tablet+ */}
+          <div className="hidden sm:block space-y-4">
+            {/* 1. Service Level Indicator Chart */}
+            <SLIChart sli={primarySLI} dataPoints={chartWindowData} darkMode={darkMode} />
+
+            {/* 2. Reliability Burn Down Chart */}
+            <ReliabilityBurnDownChart 
+              sli={primarySLI} 
+              dataPoints={chartWindowData} 
+              objectivePercent={slo.objectivePercent} 
+              darkMode={darkMode} 
+            />
+
+            {/* 3. Error Budget Burn Rate Chart */}
+            <BurnRateChart 
+              sli={primarySLI} 
+              dataPoints={chartWindowData} 
+              objectivePercent={slo.objectivePercent} 
+              darkMode={darkMode} 
+            />
           </div>
 
           {/* Mobile: Simple summary instead of chart */}
@@ -1756,7 +1618,7 @@ function SLOCard({ slo, seriesData, status, isExpanded, onToggle, timeRangeDays 
 
           {/* Incident Timeline - Aligned with chart */}
           <div className="overflow-x-auto overflow-y-hidden">
-            <div className="ml-[65px] mr-[65px]">
+            <div className="ml-[120px] mr-[40px]">
               <IncidentTimeline data={data} sli={primarySLI} />
             </div>
           </div>
