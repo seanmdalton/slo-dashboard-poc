@@ -579,22 +579,117 @@ export default function Home() {
                 timeRangeDays={timeRangeDays}
               />
             ) : !selectedJourney ? (
-              // Welcome screen when nothing is selected
+              // Active Incidents Dashboard
               <div>
-                <div className="flex flex-col items-center justify-center mb-8">
-                  <div className="text-center max-w-md">
-                    <div className="text-6xl mb-4">🚗</div>
-                    <h2 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
-                      Welcome to Sean's Automotive SLO Dashboard
-                    </h2>
-                    <p className="text-neutral-600 dark:text-neutral-400 mb-6">
-                      Select a journey from the sidebar to view detailed SLO information, charts, and metrics.
-                    </p>
+                {/* Active Incidents */}
+                <div className="mb-8">
+                  <h2 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-4 flex items-center gap-2">
+                    🚨 Active Customer-Impacting Incidents
+                  </h2>
+                  
+                  <div className="space-y-4 mb-8">
+                    {/* P2 Incident */}
+                    <div className="border-l-4 border-orange-500 bg-white dark:bg-neutral-800 rounded-r-lg overflow-hidden shadow-sm">
+                      <button
+                        onClick={() => setExpandedSLOs(prev => ({ ...prev, 'incident-p2': !prev['incident-p2'] }))}
+                        className="w-full px-4 py-3 flex items-center justify-between hover:bg-neutral-50 dark:hover:bg-neutral-700/50 transition-colors text-left min-h-[44px]"
+                      >
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-1">
+                            <span className="px-2 py-0.5 rounded text-xs font-bold bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300 border border-orange-300 dark:border-orange-700">
+                              P2
+                            </span>
+                            <span className="font-semibold text-neutral-900 dark:text-neutral-100">
+                              Customers Unable to Add Items to Cart
+                            </span>
+                          </div>
+                          <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                            Multiple reports of "Add to Cart" failures in the e-commerce experience. Error rate spike detected across cart services impacting checkout conversion. Investigating backend API performance degradation.
+                          </p>
+                        </div>
+                        <span className="ml-4 text-neutral-400 dark:text-neutral-500">
+                          {expandedSLOs['incident-p2'] ? '▼' : '▶'}
+                        </span>
+                      </button>
+                      
+                      {expandedSLOs['incident-p2'] && (
+                        <div className="px-4 py-3 bg-neutral-50 dark:bg-neutral-900/50 border-t border-neutral-200 dark:border-neutral-700">
+                          <div className="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2">Affected SLOs:</div>
+                          <div className="space-y-2">
+                            <button
+                              onClick={() => selectJourneyAndClearSearch('journey-ecomm-cart')}
+                              className="block w-full text-left px-3 py-2 rounded bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 hover:border-blue-300 dark:hover:border-blue-700 transition-colors"
+                            >
+                              <div className="font-medium text-neutral-900 dark:text-neutral-100">Cart → Add to Cart Availability</div>
+                              <div className="text-xs text-neutral-500 dark:text-neutral-400">Currently at risk (35% error budget remaining)</div>
+                            </button>
+                            <button
+                              onClick={() => selectJourneyAndClearSearch('journey-ecomm-cart')}
+                              className="block w-full text-left px-3 py-2 rounded bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 hover:border-blue-300 dark:hover:border-blue-700 transition-colors"
+                            >
+                              <div className="font-medium text-neutral-900 dark:text-neutral-100">Cart → Cart Update Success Rate</div>
+                              <div className="text-xs text-neutral-500 dark:text-neutral-400">Currently at risk (35% error budget remaining)</div>
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* P3 Incident */}
+                    <div className="border-l-4 border-yellow-500 bg-white dark:bg-neutral-800 rounded-r-lg overflow-hidden shadow-sm">
+                      <button
+                        onClick={() => setExpandedSLOs(prev => ({ ...prev, 'incident-p3': !prev['incident-p3'] }))}
+                        className="w-full px-4 py-3 flex items-center justify-between hover:bg-neutral-50 dark:hover:bg-neutral-700/50 transition-colors text-left min-h-[44px]"
+                      >
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-1">
+                            <span className="px-2 py-0.5 rounded text-xs font-bold bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 border border-yellow-300 dark:border-yellow-700">
+                              P3
+                            </span>
+                            <span className="font-semibold text-neutral-900 dark:text-neutral-100">
+                              Elevated Store Locator Search Latency
+                            </span>
+                          </div>
+                          <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                            Store locator queries experiencing degraded response times. Users may notice slower "Find in Store" results and inventory lookups. Database query optimization in progress to restore performance.
+                          </p>
+                        </div>
+                        <span className="ml-4 text-neutral-400 dark:text-neutral-500">
+                          {expandedSLOs['incident-p3'] ? '▼' : '▶'}
+                        </span>
+                      </button>
+                      
+                      {expandedSLOs['incident-p3'] && (
+                        <div className="px-4 py-3 bg-neutral-50 dark:bg-neutral-900/50 border-t border-neutral-200 dark:border-neutral-700">
+                          <div className="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2">Affected SLOs:</div>
+                          <div className="space-y-2">
+                            <button
+                              onClick={() => selectJourneyAndClearSearch('journey-ecomm-store-locator')}
+                              className="block w-full text-left px-3 py-2 rounded bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 hover:border-blue-300 dark:hover:border-blue-700 transition-colors"
+                            >
+                              <div className="font-medium text-neutral-900 dark:text-neutral-100">Store Locator → Store Locator Availability</div>
+                              <div className="text-xs text-neutral-500 dark:text-neutral-400">Breached (5% error budget remaining)</div>
+                            </button>
+                            <button
+                              onClick={() => selectJourneyAndClearSearch('journey-ecomm-store-locator')}
+                              className="block w-full text-left px-3 py-2 rounded bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 hover:border-blue-300 dark:hover:border-blue-700 transition-colors"
+                            >
+                              <div className="font-medium text-neutral-900 dark:text-neutral-100">Store Locator → Inventory Check Latency</div>
+                              <div className="text-xs text-neutral-500 dark:text-neutral-400">Breached (5% error budget remaining)</div>
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
 
-                {/* Global Stats */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 max-w-4xl mx-auto">
+                {/* Global Stats - Single Row */}
+                <div className="mb-8">
+                  <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100 mb-4">
+                    📊 SLO Overview
+                  </h2>
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                     <div className="bg-white dark:bg-neutral-800 rounded-lg p-4 shadow-sm border border-neutral-200 dark:border-neutral-700">
                       <div className="text-3xl font-bold text-neutral-900 dark:text-neutral-100">
                         {experiences.reduce((acc, exp) => acc + exp.journeys.length, 0)}
@@ -613,26 +708,14 @@ export default function Home() {
                       </div>
                       <div className="text-sm text-neutral-600 dark:text-neutral-400">Meeting Targets</div>
                     </div>
-                </div>
-
-                {/* Alert if issues exist */}
-                {(globalIssues.breaching > 0 || globalIssues.atRisk > 0) && (
-                  <div className="p-4 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-left mb-6 max-w-4xl mx-auto">
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl">⚠️</span>
-                      <div>
-                        <div className="font-semibold text-amber-900 dark:text-amber-300">
-                          {globalIssues.breaching > 0 && `${globalIssues.breaching} SLO${globalIssues.breaching > 1 ? 's' : ''} breaching`}
-                          {globalIssues.breaching > 0 && globalIssues.atRisk > 0 && " • "}
-                          {globalIssues.atRisk > 0 && `${globalIssues.atRisk} at risk`}
-                        </div>
-                        <div className="text-sm text-amber-700 dark:text-amber-400">
-                          Select a journey from the sidebar to view details
-                        </div>
+                    <div className="bg-white dark:bg-neutral-800 rounded-lg p-4 shadow-sm border border-neutral-200 dark:border-neutral-700">
+                      <div className="text-3xl font-bold text-red-600 dark:text-red-500">
+                        {globalIssues.breaching}
                       </div>
+                      <div className="text-sm text-neutral-600 dark:text-neutral-400">SLOs Breaching</div>
                     </div>
                   </div>
-                )}
+                </div>
 
                 {/* Recent Changes Feed - Full width */}
                 {recentChanges.length > 0 && (
