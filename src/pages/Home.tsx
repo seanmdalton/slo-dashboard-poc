@@ -37,8 +37,8 @@ export default function Home() {
   const [filterTier, setFilterTier] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   
-  // Time range selection (in days)
-  const [timeRangeDays, setTimeRangeDays] = useState<number>(28);
+  // Time range (fixed at 28 days)
+  const timeRangeDays = 28;
   
   const [darkMode, setDarkMode] = useState(() => {
     if (typeof window !== 'undefined') {
