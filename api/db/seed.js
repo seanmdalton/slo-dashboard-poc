@@ -1,7 +1,7 @@
 import { db, sql, testConnection } from './connection.js';
 import { experiences, journeys, slos, slis, dataPoints } from './schema.js';
 import { eq } from 'drizzle-orm';
-import seedData from '../../src/data/seed.json' assert { type: 'json' };
+import seedData from '../../src/data/seed.json' with { type: 'json' };
 
 // Helper: Generate UUID-like ID
 function generateId(prefix) {
