@@ -459,6 +459,19 @@ export default function Home() {
         </div>
       </header>
 
+      {/* Demo Data Banner */}
+      <div className="bg-blue-50 dark:bg-blue-900/20 border-b border-blue-200 dark:border-blue-800 px-4 py-2 flex-shrink-0">
+        <div className="max-w-6xl mx-auto flex items-center justify-center gap-2 text-sm">
+          <span className="text-blue-700 dark:text-blue-300">📊</span>
+          <span className="text-blue-800 dark:text-blue-200 font-medium">
+            Demo Data
+          </span>
+          <span className="text-blue-600 dark:text-blue-400">
+            • Viewing performance data for September 26 - October 24, 2025
+          </span>
+        </div>
+      </div>
+
       <div className="flex-1 flex overflow-hidden">
         {/* Mobile Backdrop */}
         {mobileMenuOpen && (

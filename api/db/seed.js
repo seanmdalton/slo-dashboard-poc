@@ -221,8 +221,10 @@ async function seed() {
     process.exit(1);
   }
   
-  const startDate = new Date(Date.now() - 28 * 24 * 60 * 60 * 1000);
-  const endDate = new Date();
+  // Fixed date range for demo data (will not age/expire)
+  // Data represents Sept 26 - Oct 24, 2025
+  const startDate = new Date('2025-09-26T00:00:00Z');
+  const endDate = new Date('2025-10-24T23:59:59Z');
   
   console.log('📊 Seeding from existing seed.json structure...');
   

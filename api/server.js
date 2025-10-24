@@ -114,6 +114,9 @@ app.get('/api/seed', rateLimiters.api, cacheControl(300), asyncHandler(async (re
  * Returns all time series data for all SLIs
  * Format: { [sliId]: [{ t, good, bad, value }] }
  * 
+ * NOTE: Demo data is anchored to Sept 26 - Oct 24, 2025 (fixed dates)
+ * This prevents data from aging/creating gaps over time
+ * 
  * Supports aggregation to reduce payload:
  * - raw: Return all 5-minute intervals (default for ≤7 days)
  * - hourly: Aggregate to hourly averages
