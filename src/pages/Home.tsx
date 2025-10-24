@@ -264,6 +264,7 @@ export default function Home() {
 
   const selectJourney = (journeyId: string) => {
     setSelectedJourneyId(journeyId);
+    setFilterOwner("all"); // Clear team filter when selecting a journey
     setMobileMenuOpen(false); // Close mobile menu when selecting a journey
     // Auto-expand the tiers for at-risk or breaching SLOs, but keep SLOs collapsed
     const journey = experiences.flatMap(exp => exp.journeys).find(j => j.id === journeyId);
@@ -310,13 +311,17 @@ export default function Home() {
 
   // Filter SLOs based on search and filters
   const searchResults = useMemo(() => {
-    if (!searchQuery.trim()) return [];
+    // If no search query and no team filter, return empty (show main dashboard)
+    if (!searchQuery.trim() && filterOwner === "all") return [];
     
-    let results = allSLOsWithContext.filter(({ slo }) => 
-      slo.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      slo.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      slo.owner.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    // Start with all SLOs if only filtering by team, otherwise filter by search query
+    let results = searchQuery.trim()
+      ? allSLOsWithContext.filter(({ slo }) => 
+          slo.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          slo.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          slo.owner.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      : allSLOsWithContext;
     
     // Apply filters
     if (filterOwner !== "all") {
@@ -406,6 +411,7 @@ export default function Home() {
               onClick={() => {
                 setSelectedJourneyId(null);
                 setSearchQuery('');
+                setFilterOwner('all');
               }}
               className="flex-1 lg:flex-initial text-left hover:opacity-80 transition-opacity"
             >
@@ -415,6 +421,24 @@ export default function Home() {
               <p className="text-xs md:text-sm text-neutral-600 dark:text-neutral-400 mt-1">SLO Dashboard</p>
             </button>
             <div className="flex items-center gap-2 md:gap-4">
+              <select
+                value={filterOwner}
+                onChange={(e) => {
+                  const team = e.target.value;
+                  setFilterOwner(team);
+                  if (team !== "all") {
+                    // Clear search query and journey to show team filter view
+                    setSearchQuery("");
+                    setSelectedJourneyId(null);
+                  }
+                }}
+                className="hidden sm:block px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg text-sm bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 min-h-[44px]"
+              >
+                <option value="all">All Teams</option>
+                {allOwners.map(owner => (
+                  <option key={owner} value={owner}>{owner}</option>
+                ))}
+              </select>
               <input
                 type="text"
                 placeholder="Search all SLOs..."
@@ -558,7 +582,7 @@ export default function Home() {
         {/* Main Content */}
         <main className="flex-1 overflow-y-auto">
           <div className="max-w-6xl mx-auto p-4 md:p-6">
-            {searchQuery.trim() ? (
+            {searchQuery.trim() || filterOwner !== "all" ? (
               // Search Results View
               <SearchResultsView
                 searchQuery={searchQuery}
@@ -574,7 +598,10 @@ export default function Home() {
                 seriesData={series}
                 expandedSLOs={expandedSLOs}
                 setExpandedSLOs={setExpandedSLOs}
-                onClearSearch={() => setSearchQuery("")}
+                onClearSearch={() => {
+                  setSearchQuery("");
+                  setFilterOwner("all");
+                }}
                 onSelectJourney={selectJourneyAndClearSearch}
                 timeRangeDays={timeRangeDays}
               />
@@ -841,6 +868,35 @@ function SearchResultsView({
     setExpandedSLOs((prev) => ({ ...prev, [sloId]: !prev[sloId] }));
   };
 
+  // Calculate summary stats for search results
+  const summaryStats = useMemo(() => {
+    let meeting = 0;
+    let atRisk = 0;
+    let breaching = 0;
+    let totalErrorBudget = 0;
+    
+    searchResults.forEach(({ slo }) => {
+      const status = sloStatuses.get(slo.id);
+      if (status) {
+        if (status.status === "ok") meeting++;
+        else if (status.status === "warn") atRisk++;
+        else breaching++;
+        totalErrorBudget += status.errorBudget.remainingPercent;
+      }
+    });
+    
+    const avgErrorBudget = searchResults.length > 0 ? totalErrorBudget / searchResults.length : 100;
+    
+    return {
+      total: searchResults.length,
+      meeting,
+      atRisk,
+      breaching,
+      avgErrorBudget,
+      healthPercent: searchResults.length > 0 ? (meeting / searchResults.length) * 100 : 0
+    };
+  }, [searchResults, sloStatuses]);
+
   return (
     <div>
       {/* Search Header */}
@@ -848,17 +904,22 @@ function SearchResultsView({
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
-              Search Results
+              {searchQuery.trim() ? 'Search Results' : filterOwner !== "all" ? `Team: ${filterOwner}` : 'Filtered Results'}
             </h2>
             <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
-              Found {searchResults.length} SLO{searchResults.length !== 1 ? 's' : ''} matching "{searchQuery}"
+              {searchQuery.trim() 
+                ? `Found ${searchResults.length} SLO${searchResults.length !== 1 ? 's' : ''} matching "${searchQuery}"`
+                : filterOwner !== "all"
+                ? `${searchResults.length} SLO${searchResults.length !== 1 ? 's' : ''} owned by ${filterOwner}`
+                : `${searchResults.length} SLO${searchResults.length !== 1 ? 's' : ''}`
+              }
             </p>
           </div>
           <button
             onClick={onClearSearch}
             className="px-4 py-2 text-sm text-blue-600 dark:text-blue-400 hover:underline min-h-[44px]"
           >
-            Clear search
+            {searchQuery.trim() ? 'Clear search' : 'Back to overview'}
           </button>
         </div>
 
@@ -919,6 +980,55 @@ function SearchResultsView({
           )}
         </div>
       </div>
+
+      {/* Summary Stats */}
+      {searchResults.length > 0 && (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          {/* Total SLOs */}
+          <div className="bg-white dark:bg-neutral-800 rounded-lg p-4 shadow-sm border border-neutral-200 dark:border-neutral-700">
+            <div className="text-sm text-neutral-600 dark:text-neutral-400 mb-1">Total SLOs</div>
+            <div className="text-3xl font-bold text-neutral-900 dark:text-neutral-100">
+              {summaryStats.total}
+            </div>
+            <div className="text-xs text-neutral-500 dark:text-neutral-400 mt-2">
+              In search results
+            </div>
+          </div>
+
+          {/* Meeting Targets */}
+          <div className="bg-white dark:bg-neutral-800 rounded-lg p-4 shadow-sm border border-neutral-200 dark:border-neutral-700">
+            <div className="text-sm text-neutral-600 dark:text-neutral-400 mb-1">Meeting Targets</div>
+            <div className="text-3xl font-bold text-green-600 dark:text-green-500">
+              {summaryStats.meeting}
+            </div>
+            <div className="text-xs text-neutral-500 dark:text-neutral-400 mt-2">
+              {summaryStats.healthPercent.toFixed(0)}% healthy
+            </div>
+          </div>
+
+          {/* At Risk */}
+          <div className="bg-white dark:bg-neutral-800 rounded-lg p-4 shadow-sm border border-neutral-200 dark:border-neutral-700">
+            <div className="text-sm text-neutral-600 dark:text-neutral-400 mb-1">At Risk</div>
+            <div className="text-3xl font-bold text-amber-600 dark:text-amber-500">
+              {summaryStats.atRisk}
+            </div>
+            <div className="text-xs text-neutral-500 dark:text-neutral-400 mt-2">
+              20-50% budget remaining
+            </div>
+          </div>
+
+          {/* Breaching */}
+          <div className="bg-white dark:bg-neutral-800 rounded-lg p-4 shadow-sm border border-neutral-200 dark:border-neutral-700">
+            <div className="text-sm text-neutral-600 dark:text-neutral-400 mb-1">Breaching</div>
+            <div className="text-3xl font-bold text-red-600 dark:text-red-500">
+              {summaryStats.breaching}
+            </div>
+            <div className="text-xs text-neutral-500 dark:text-neutral-400 mt-2">
+              &lt;20% budget remaining
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Results */}
       {searchResults.length === 0 ? (
@@ -1232,7 +1342,7 @@ function JourneySection({ journey, expandedTiers, expandedSLOs, setExpandedTiers
             if (slos.length === 0) return null;
             
             const tierKey = `${journey.id}-${tier}`;
-            const tierLabel = tier === "tier-0" ? "Tier-0 Critical" : tier === "tier-1" ? "Tier-1 Important" : "Tier-2 Standard";
+            const tierLabel = tier === "tier-0" ? "Critical Services (Tier-0)" : tier === "tier-1" ? "Important Services (Tier-1)" : "Standard Services (Tier-2)";
             const isTierExpanded = expandedTiers[tierKey];
             const tierHealth = tierHealthMap.get(tier) || { meeting: 0, atRisk: 0, breaching: 0, total: 0 };
             
@@ -1246,7 +1356,7 @@ function JourneySection({ journey, expandedTiers, expandedSLOs, setExpandedTiers
                     <div className="flex items-center gap-2">
                       <span>{isTierExpanded ? "▼" : "▶"}</span>
                       <span className="font-bold text-neutral-900 dark:text-neutral-100">
-                        {tierLabel} ({slos.length})
+                        {tierLabel}
                       </span>
                     </div>
                     <div className="flex items-center gap-3 text-sm">
@@ -1492,7 +1602,7 @@ function SLOCard({ slo, seriesData, status, isExpanded, onToggle, timeRangeDays 
             <div className="flex items-center gap-2 mb-1 flex-wrap">
               <span className="font-semibold text-neutral-900 dark:text-neutral-100 text-sm">{slo.name}</span>
               <span className={`px-2 py-0.5 rounded text-xs font-medium border ${getTierColor(slo.criticality)}`}>
-                {slo.criticality}
+                {slo.criticality === "tier-0" ? "Critical" : slo.criticality === "tier-1" ? "Important" : "Standard"}
               </span>
               <span className={`px-2 py-0.5 rounded text-xs font-medium ${getStatusColor()}`}>
                 {getStatusText()}
@@ -1633,7 +1743,7 @@ function SLOCard({ slo, seriesData, status, isExpanded, onToggle, timeRangeDays 
 
           {/* Incident Timeline - Aligned with chart */}
           <div className="overflow-x-auto overflow-y-hidden">
-            <div className="ml-[60px] mr-[60px]">
+            <div className="ml-[65px] mr-[65px]">
               <IncidentTimeline data={data} sli={primarySLI} />
             </div>
           </div>
